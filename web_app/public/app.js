@@ -299,18 +299,9 @@ async function predictWebcam() {
                 drawLandmarks(canvasCtx, landmarks, { color: "#3b82f6", lineWidth: 1, radius: 2 });
             }
             
-            // Finger counting heuristics (Primary hand for Spotify gestures)
+            // Finger counting heuristics
             const primaryFingerCount = detectFingerCount(results.landmarks[0]);
-            let gestureLabel = "";
-            
-            switch(primaryFingerCount) {
-                case 1: gestureLabel = "1 Finger (Spotify: Next)"; break;
-                case 2: gestureLabel = "2 Fingers (Spotify: Prev)"; break;
-                case 3: gestureLabel = "3 Fingers (Spotify: Play)"; break;
-                case 4: gestureLabel = "4 Fingers (Spotify: Pause)"; break;
-                case 5: gestureLabel = "5 Fingers (Jarvis Mode)"; break;
-                default: gestureLabel = "Resting"; break;
-            }
+            let gestureLabel = (primaryFingerCount === 5) ? "5 Fingers (Jarvis Mode)" : "Resting";
 
             // Draw Jarvis circle for ANY hand showing 5 fingers
             let anyHandJarvis = false;
@@ -334,26 +325,6 @@ async function predictWebcam() {
 
             if (gestureOutput.innerHTML !== gestureLabel) {
                 gestureOutput.innerHTML = gestureLabel;
-                
-                // Throttle API requests
-                if (Date.now() - lastSignSentTime > 1500) {
-                    lastSignSentTime = Date.now();
-                    sendSignToAPI(gestureLabel);
-                    
-                    if (primaryFingerCount === 1) {
-                        speak("Next track");
-                        handleSpotifyCommand("next");
-                    } else if (primaryFingerCount === 2) {
-                        speak("Previous track");
-                        handleSpotifyCommand("previous");
-                    } else if (primaryFingerCount === 3) {
-                        speak("Playing");
-                        handleSpotifyCommand("play");
-                    } else if (primaryFingerCount === 4) {
-                        speak("Paused");
-                        handleSpotifyCommand("pause");
-                    }
-                }
             }
             
         } else {

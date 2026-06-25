@@ -17,6 +17,7 @@ let runningMode = "VIDEO";
 let webcamRunning = false;
 let lastVideoTime = -1;
 let lastSignSentTime = 0;
+let lastCaptureTime = 0;
 
 // API connection check
 async function checkBackendAPI() {
@@ -34,14 +35,13 @@ async function checkBackendAPI() {
     }
 }
 
-// Check API status periodically
 checkBackendAPI();
 setInterval(checkBackendAPI, 10000);
 
 function addNotification(text) {
     const p = document.createElement("p");
     p.className = "sys-msg";
-    p.textContent = `> [${new Date().toLocaleTimeString()}] ${text}`;
+    p.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
     notificationsBox.prepend(p);
 }
 
@@ -56,39 +56,33 @@ async function createHandLandmarker() {
             delegate: "GPU"
         },
         runningMode: runningMode,
-        numHands: 2,
+        numHands: 1,
         minHandDetectionConfidence: 0.7,
         minHandPresenceConfidence: 0.7,
         minTrackingConfidence: 0.7
     });
     enableWebcamButton.classList.remove("disabled");
-    addNotification("AI Model Loaded: Ready for Sign Language.");
+    addNotification("Vision System Initialized.");
 }
 
 createHandLandmarker();
 
-// Enable webcam
 if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
     enableWebcamButton.addEventListener("click", enableCam);
-} else {
-    console.warn("getUserMedia() is not supported by your browser");
 }
 
 function enableCam(event) {
-    if (!handLandmarker) {
-        console.log("Wait! objectDetector not loaded yet.");
-        return;
-    }
+    if (!handLandmarker) return;
 
     if (webcamRunning === true) {
         webcamRunning = false;
-        enableWebcamButton.innerHTML = "[ INITIATE OPTICAL SENSOR ]";
+        enableWebcamButton.innerHTML = "Enable Camera";
         camStatus.textContent = "CAM: OFFLINE";
         camStatus.className = "badge";
         video.srcObject.getTracks().forEach(track => track.stop());
     } else {
         webcamRunning = true;
-        enableWebcamButton.innerHTML = "[ TERMINATE OPTICAL SENSOR ]";
+        enableWebcamButton.innerHTML = "Disable Camera";
         camStatus.textContent = "CAM: ONLINE";
         camStatus.className = "badge active";
 
@@ -100,7 +94,6 @@ function enableCam(event) {
     }
 }
 
-// Prediction Loop
 async function predictWebcam() {
     canvasElement.style.width = video.videoWidth;
     canvasElement.style.height = video.videoHeight;
@@ -123,31 +116,37 @@ async function predictWebcam() {
         if (results.landmarks && results.landmarks.length > 0) {
             trackingStatus.textContent = "ACTIVE";
             trackingStatus.style.color = "var(--success)";
-            
             handednessOut.textContent = results.handednesses[0][0].displayName;
 
             for (const landmarks of results.landmarks) {
-                drawConnectors(canvasCtx, landmarks, {
-                    color: "rgba(0, 240, 255, 0.4)",
-                    lineWidth: 2
-                });
-                drawLandmarks(canvasCtx, landmarks, { 
-                    color: "#00f0ff", 
-                    lineWidth: 1, 
-                    radius: 2 
-                });
+                drawConnectors(canvasCtx, landmarks, { color: "rgba(59, 130, 246, 0.4)", lineWidth: 2 });
+                drawLandmarks(canvasCtx, landmarks, { color: "#3b82f6", lineWidth: 1, radius: 2 });
             }
             
-            // Sign Language Heuristics
-            const sign = detectSignLanguage(results.landmarks[0]);
-            if(sign) {
-                if (gestureOutput.innerHTML !== sign) {
-                    gestureOutput.innerHTML = sign;
+            // Finger counting heuristics
+            const fingerCount = detectFingerCount(results.landmarks[0]);
+            let gestureLabel = "";
+            
+            switch(fingerCount) {
+                case 1: gestureLabel = "1 Finger (Next)"; break;
+                case 2: gestureLabel = "2 Fingers (Back)"; break;
+                case 3: gestureLabel = "3 Fingers (Scroll)"; break;
+                case 4: gestureLabel = "4 Fingers (Help)"; break;
+                case 5: gestureLabel = "5 Fingers (Capture Profile)"; break;
+                default: gestureLabel = "Resting"; break;
+            }
+
+            if (gestureOutput.innerHTML !== gestureLabel) {
+                gestureOutput.innerHTML = gestureLabel;
+                
+                // Throttle API requests
+                if (Date.now() - lastSignSentTime > 1500) {
+                    lastSignSentTime = Date.now();
+                    sendSignToAPI(gestureLabel);
                     
-                    // Throttle API requests to Vercel so we don't spam
-                    if (Date.now() - lastSignSentTime > 1500) {
-                        lastSignSentTime = Date.now();
-                        sendSignToAPI(sign);
+                    if (fingerCount === 5 && (Date.now() - lastCaptureTime > 5000)) {
+                        lastCaptureTime = Date.now();
+                        captureAndRegisterUser();
                     }
                 }
             }
@@ -156,7 +155,7 @@ async function predictWebcam() {
             trackingStatus.textContent = "INACTIVE";
             trackingStatus.style.color = "var(--text-secondary)";
             handednessOut.textContent = "-";
-            gestureOutput.innerHTML = `<span class="placeholder">AWAITING INPUT...</span>`;
+            gestureOutput.innerHTML = `<span class="placeholder">Waiting for hand...</span>`;
         }
         canvasCtx.restore();
     }
@@ -164,6 +163,32 @@ async function predictWebcam() {
     if (webcamRunning === true) {
         window.requestAnimationFrame(predictWebcam);
     }
+}
+
+// Very basic finger counting heuristic
+function detectFingerCount(landmarks) {
+    const isFingerUp = (tip, mcp) => landmarks[tip].y < landmarks[mcp].y;
+    
+    // Note: Thumb heuristic is simplified for a front-facing palm
+    const thumbUp = landmarks[4].x < landmarks[3].x; // This depends on handedness, simplified here.
+    const indexUp = isFingerUp(8, 5);
+    const middleUp = isFingerUp(12, 9);
+    const ringUp = isFingerUp(16, 13);
+    const pinkyUp = isFingerUp(20, 17);
+    
+    let count = 0;
+    if (indexUp) count++;
+    if (middleUp) count++;
+    if (ringUp) count++;
+    if (pinkyUp) count++;
+    
+    // Crude thumb check
+    if (Math.abs(landmarks[4].x - landmarks[5].x) > 0.05) {
+        count++;
+    }
+
+    // Clamp count
+    return Math.min(5, Math.max(0, count));
 }
 
 async function sendSignToAPI(sign) {
@@ -174,42 +199,72 @@ async function sendSignToAPI(sign) {
             body: JSON.stringify({ sign: sign })
         });
         const data = await response.json();
-        addNotification(`Uplink: ${data.message}`);
+        console.log("Telemetry:", data.message);
     } catch (err) {
         console.error(err);
     }
 }
 
-// Very basic Sign Language Heuristic for Demo
-function detectSignLanguage(landmarks) {
-    const isFingerUp = (tip, mcp) => landmarks[tip].y < landmarks[mcp].y;
-    const indexUp = isFingerUp(8, 5);
-    const middleUp = isFingerUp(12, 9);
-    const ringUp = isFingerUp(16, 13);
-    const pinkyUp = isFingerUp(20, 17);
+async function captureAndRegisterUser() {
+    addNotification("Capturing Photo...");
     
-    if (indexUp && middleUp && !ringUp && !pinkyUp) {
-        return "V / 2";
-    } else if (indexUp && !middleUp && !ringUp && !pinkyUp) {
-        return "1 / POINT";
-    } else if (indexUp && middleUp && ringUp && pinkyUp) {
-        return "5 / OPEN";
-    } else if (!indexUp && !middleUp && !ringUp && !pinkyUp) {
-        return "A / FIST";
+    // Flash effect
+    document.body.classList.add("flash-effect");
+    setTimeout(() => document.body.classList.remove("flash-effect"), 200);
+
+    // Create temporary canvas to grab the frame
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = video.videoWidth;
+    tempCanvas.height = video.videoHeight;
+    tempCanvas.getContext("2d").drawImage(video, 0, 0);
+    const base64Image = tempCanvas.toDataURL("image/jpeg", 0.8);
+
+    try {
+        const response = await fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image_base64: base64Image })
+        });
+        const data = await response.json();
+        
+        if (data.status === "success") {
+            addNotification("Success: Profile Registered!");
+            showProfilePopup(base64Image);
+        }
+    } catch (err) {
+        addNotification("Error: Failed to register profile.");
+        console.error(err);
     }
-    return null;
+}
+
+function showProfilePopup(imgSrc) {
+    const existing = document.getElementById("profile-popup");
+    if(existing) existing.remove();
+
+    const popup = document.createElement("div");
+    popup.id = "profile-popup";
+    popup.className = "profile-popup";
+    popup.innerHTML = `
+        <div class="popup-content">
+            <h3>Registration Complete</h3>
+            <img src="${imgSrc}" alt="User Profile" />
+            <p>Welcome to the Touchless Kiosk!</p>
+            <button onclick="document.getElementById('profile-popup').remove()">Close</button>
+        </div>
+    `;
+    document.body.appendChild(popup);
 }
 
 function drawConnectors(ctx, landmarks, options) {
-    ctx.strokeStyle = options.color || "#00f0ff";
-    ctx.lineWidth = options.lineWidth || 2;
+    ctx.strokeStyle = options.color;
+    ctx.lineWidth = options.lineWidth;
 }
 
 function drawLandmarks(ctx, landmarks, options) {
-    ctx.fillStyle = options.color || "#00f0ff";
+    ctx.fillStyle = options.color;
     for(const lm of landmarks) {
         ctx.beginPath();
-        ctx.arc(lm.x * canvasElement.width, lm.y * canvasElement.height, options.radius || 2, 0, 2 * Math.PI);
+        ctx.arc(lm.x * canvasElement.width, lm.y * canvasElement.height, options.radius, 0, 2 * Math.PI);
         ctx.fill();
     }
 }

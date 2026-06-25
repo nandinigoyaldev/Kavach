@@ -38,3 +38,6 @@ jarvis-gesture = "jarvis_control.gesture:main"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["jarvis_control*"]
+
+[tool.vercel]
+entrypoint = "web_app.api.index:app"

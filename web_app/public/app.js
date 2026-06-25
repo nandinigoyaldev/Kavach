@@ -197,11 +197,12 @@ async function predictWebcam() {
             }
 
             // Draw Jarvis circle for ANY hand showing 5 fingers
-            for (const landmarks of results.landmarks) {
+            results.landmarks.forEach((landmarks, index) => {
                 if (detectFingerCount(landmarks) === 5) {
-                    drawJarvisCircle(canvasCtx, landmarks);
+                    const handName = results.handednesses[index][0].displayName;
+                    drawJarvisCircle(canvasCtx, landmarks, handName);
                 }
-            }
+            });
 
             if (gestureOutput.innerHTML !== gestureLabel) {
                 gestureOutput.innerHTML = gestureLabel;
@@ -341,7 +342,7 @@ function drawLandmarks(ctx, landmarks, options) {
     }
 }
 
-function drawJarvisCircle(ctx, landmarks) {
+function drawJarvisCircle(ctx, landmarks, handName) {
     const center = landmarks[9]; // Middle finger MCP
     const x = center.x * canvasElement.width;
     const y = center.y * canvasElement.height;
@@ -351,75 +352,121 @@ function drawJarvisCircle(ctx, landmarks) {
     const dx = (wrist.x - middleTip.x) * canvasElement.width;
     const dy = (wrist.y - middleTip.y) * canvasElement.height;
     const handSize = Math.sqrt(dx*dx + dy*dy);
-    const baseRadius = handSize * 0.45;
+    
+    // Distance based size: baseline size + slight hand scale
+    // This makes the ring look relatively massive when the hand is far (small handSize),
+    // and relatively tight when the hand is near.
+    const baseRadius = 90 + (handSize * 0.2);
 
-    jarvisRotation += 0.08;
+    jarvisRotation += 0.04;
+    const time = Date.now();
+    const pulse = Math.sin(time / 150) * 0.05 + 1.0; // 0.95 to 1.05
 
+    // Color based on Handedness
+    // Left = Cyan (180), Right = Orange/Gold (35)
+    const hue = handName === "Left" ? 180 : 35;
+    
     ctx.save();
     ctx.translate(x, y);
+    ctx.scale(pulse, pulse); // Add pulsing heartbeat animation
     
     // Core glow
     ctx.beginPath();
-    ctx.arc(0, 0, baseRadius * 0.4, 0, 2 * Math.PI);
-    ctx.fillStyle = "rgba(0, 255, 255, 0.15)";
+    ctx.arc(0, 0, baseRadius * 0.3, 0, 2 * Math.PI);
+    ctx.fillStyle = `hsla(${hue}, 100%, 50%, 0.15)`;
     ctx.shadowBlur = 30;
-    ctx.shadowColor = "cyan";
+    ctx.shadowColor = `hsl(${hue}, 100%, 50%)`;
     ctx.fill();
 
-    // Inner rotating dashed ring
+    // Inner fast-rotating dashed ring
     ctx.save();
-    ctx.rotate(jarvisRotation * 1.2);
+    ctx.rotate(jarvisRotation * 2.5);
     ctx.beginPath();
-    ctx.arc(0, 0, baseRadius * 0.8, 0, 2 * Math.PI);
-    ctx.strokeStyle = "rgba(0, 200, 255, 0.9)";
-    ctx.lineWidth = 2;
-    ctx.setLineDash([20, 10, 5, 10]);
+    ctx.arc(0, 0, baseRadius * 0.7, 0, 2 * Math.PI);
+    ctx.strokeStyle = `hsla(${hue}, 100%, 60%, 0.9)`;
+    ctx.lineWidth = 3;
+    ctx.setLineDash([15, 10, 5, 10]);
     ctx.stroke();
     ctx.restore();
     
-    // Middle solid ring with gaps
+    // Middle solid ring with gaps (reverse rotation)
     ctx.save();
-    ctx.rotate(-jarvisRotation * 0.8);
+    ctx.rotate(-jarvisRotation * 1.5);
     ctx.beginPath();
-    ctx.arc(0, 0, baseRadius * 1.1, 0.2, 2 * Math.PI - 0.2);
-    ctx.strokeStyle = "rgba(0, 255, 255, 0.7)";
+    ctx.arc(0, 0, baseRadius * 1.0, 0.2, 2 * Math.PI - 0.2);
+    ctx.strokeStyle = `hsla(${hue}, 100%, 50%, 0.7)`;
     ctx.lineWidth = 4;
-    ctx.setLineDash([60, 20]);
+    ctx.setLineDash([80, 30]);
+    ctx.stroke();
+    
+    // Draw an inscribed hexagon for more tech-feel
+    ctx.beginPath();
+    for (let i = 0; i <= 6; i++) {
+        const angle = i * Math.PI / 3;
+        const px = Math.cos(angle) * baseRadius * 1.0;
+        const py = Math.sin(angle) * baseRadius * 1.0;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+    }
+    ctx.strokeStyle = `hsla(${hue}, 100%, 50%, 0.3)`;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([]);
     ctx.stroke();
     ctx.restore();
 
     // Outer thick radar band
     ctx.save();
-    ctx.rotate(jarvisRotation * 0.5);
+    ctx.rotate(jarvisRotation * 0.8);
     ctx.beginPath();
-    ctx.arc(0, 0, baseRadius * 1.4, 0, Math.PI * 0.8);
-    ctx.strokeStyle = "rgba(0, 150, 255, 0.5)";
-    ctx.lineWidth = 8;
+    ctx.arc(0, 0, baseRadius * 1.3, 0, Math.PI * 0.7);
+    ctx.strokeStyle = `hsla(${hue}, 80%, 50%, 0.5)`;
+    ctx.lineWidth = 10;
     ctx.setLineDash([]);
     ctx.stroke();
     ctx.beginPath();
-    ctx.arc(0, 0, baseRadius * 1.4, Math.PI, Math.PI * 1.8);
+    ctx.arc(0, 0, baseRadius * 1.3, Math.PI, Math.PI * 1.7);
+    ctx.stroke();
+    
+    // Outer tick marks
+    ctx.beginPath();
+    ctx.arc(0, 0, baseRadius * 1.45, 0, 2 * Math.PI);
+    ctx.strokeStyle = `hsla(${hue}, 100%, 60%, 0.6)`;
+    ctx.lineWidth = 4;
+    ctx.setLineDash([2, 18]);
     ctx.stroke();
     ctx.restore();
 
-    // Draw connection lines to fingertips for the "cybernetic" feel
+    // Draw cybernetic lines to fingertips
     ctx.setLineDash([5, 5]);
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = "rgba(0, 255, 255, 0.6)";
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = `hsla(${hue}, 100%, 50%, 0.7)`;
     const tips = [4, 8, 12, 16, 20];
-    tips.forEach(tipIdx => {
+    tips.forEach((tipIdx, i) => {
         const tip = landmarks[tipIdx];
         const tx = tip.x * canvasElement.width - x;
         const ty = tip.y * canvasElement.height - y;
+        
+        // Add a sweeping highlight on the lines
+        const lineLen = Math.sqrt(tx*tx + ty*ty);
+        const sweep = (time / 10 + i * 50) % lineLen;
+
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.lineTo(tx, ty);
         ctx.stroke();
         
-        // Draw small circle at tip
+        // Highlight pulse along the line
+        const hx = (tx / lineLen) * sweep;
+        const hy = (ty / lineLen) * sweep;
         ctx.beginPath();
-        ctx.arc(tx, ty, 6, 0, 2 * Math.PI);
-        ctx.fillStyle = "rgba(0, 255, 255, 0.8)";
+        ctx.arc(hx, hy, 3, 0, 2*Math.PI);
+        ctx.fillStyle = "#fff";
+        ctx.fill();
+        
+        // Glowing node at fingertip
+        ctx.beginPath();
+        ctx.arc(tx, ty, 6 + Math.sin(time/100 + i)*2, 0, 2 * Math.PI);
+        ctx.fillStyle = `hsla(${hue}, 100%, 60%, 0.9)`;
         ctx.fill();
     });
 

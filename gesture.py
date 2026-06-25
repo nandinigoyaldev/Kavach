@@ -1,10 +1,7 @@
 """
-JARVIS Main Entry Point
+JARVIS Main Launcher
 
-This is the main launcher for the JARVIS gesture and voice control system.
-Run this to start the full-featured application with all visualizations.
-
-Educational version: See lessons/lesson_06_gesture_recognition_full.py
+Standalone version: See src/main.py
 """
 
 import os
@@ -20,7 +17,10 @@ ROOT = Path(__file__).resolve().parents[0]
 sys.path.insert(0, str(ROOT))
 
 # Import and run the full JARVIS system
-from lessons.lesson_06_gesture_recognition_full import main
+try:
+    from src.main import main
+except ImportError:
+    print("Error: Could not import main application module.")
 
 
 if __name__ == "__main__":

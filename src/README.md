@@ -1,72 +1,72 @@
-# JARVIS Lessons - Building a Gesture + Voice Recognition System
+# JARVIS Hackathon Project - Gesture + Voice Recognition
 
-These lessons teach you how to build **JARVIS**, a complete hand gesture and voice recognition system. Each lesson builds on the previous one, starting with basics and moving to advanced features.
+This project implements **JARVIS**, a complete hand gesture and voice recognition system. The code is structured into modules handling different features.
 
-## Learning Path
+## Modules
 
-Run each lesson with the virtualenv activated:
+Run each module with the virtualenv activated:
 
 ```bash
 . .venv/bin/activate
-python lessons/lesson_XX_name.py
+python src/module_name.py
 ```
 
 ### Level 1: Camera Fundamentals
 
-#### **Lesson 01: Open Camera** 
+#### **Camera Feed: Open Camera** 
 - **Goal**: Learn to access the webcam with OpenCV
 - **Topics**: Video capture, frame reading, real-time display
 - **Skills**: Setting up camera input for vision tasks
 ```bash
-CAMERA_INDEX=0 python lessons/lesson_01_open_camera.py
+CAMERA_INDEX=0 python src/camera_feed.py
 ```
 
 ### Level 2: Hand Detection & Gesture Recognition
 
-#### **Lesson 02: Count Fingers**
+#### **Gesture Tracker: Count Fingers**
 - **Goal**: Detect hands and count raised fingers
 - **Topics**: MediaPipe hand detection, landmark analysis, gesture detection
 - **Skills**: ML-based hand tracking, geometric calculations
 ```bash
-python lessons/lesson_02_count_fingers.py
+python src/gesture_tracker.py
 ```
 
-#### **Lesson 03: Two Finger Screenshot**
+#### **Screenshot Engine: Two Finger Screenshot**
 - **Goal**: Take screenshots using a hand gesture
 - **Topics**: Gesture triggering, screen capture, state management
 - **Skills**: Combining gesture detection with system commands
 ```bash
-python lessons/lesson_03_two_finger_screenshot.py
+python src/screenshot_engine.py
 ```
 
 ### Level 3: Voice & Audio Integration
 
-#### **Lesson 04: Voice Command Recognition**
+#### **Voice Assistant: Voice Command Recognition**
 - **Goal**: Listen for and recognize voice commands
 - **Topics**: Real-time audio capture, speech-to-text, wake word detection
 - **Skills**: Voice processing, threading, callbacks
 ```bash
-python lessons/lesson_04_voice_control.py
+python src/voice_assistant.py
 ```
 
 ### Level 4: External Service Integration
 
-#### **Lesson 05: Spotify Integration**
+#### **Spotify Integration: Spotify Integration**
 - **Goal**: Control music playback with Python
 - **Topics**: OAuth authentication, API integration, error handling
 - **Skills**: Working with APIs, credential management, graceful degradation
 ```bash
-python lessons/lesson_05_spotify_integration.py
+python src/spotify_controller.py
 ```
 
 ### Level 5: Complete System
 
-#### **Lesson 06: Full JARVIS System**
+#### **Main App: Full JARVIS System**
 - **Goal**: Combine all features into one powerful application
 - **Topics**: Multi-modal input, event architecture, real-time processing
 - **Skills**: System integration, performance optimization, user experience
 ```bash
-CAMERA_INDEX=0 python lessons/lesson_06_gesture_recognition_full.py
+CAMERA_INDEX=0 python src/main.py
 ```
 
 Or use the main entry point:
@@ -124,25 +124,25 @@ CAMERA_INDEX=0 python gesture.py
    curl -fsSL https://ollama.ai/install.sh | sh
    ```
 
-## Educational Use
+## Technical Architecture
 
-These lessons are designed for learning. Each file contains:
+The modules are designed to be standalone for easy integration. Each file contains:
 - Clear comments explaining what's happening
 - Well-structured code following best practices
 - Modular functions that can be adapted
 - Demo/test functions to verify learning
 
-**Planned exercises for students:**
+**Future implementations:**
 - Delete certain code sections and re-implement them
 - Modify gesture triggers to do different actions
 - Add new voice commands
 - Integrate different external APIs
 - Optimize performance for different hardware
 
-## Tips for Learning
+## Development Tips
 
-1. **Start with Lesson 01** - Understand the fundamentals
-2. **Run each lesson independently** - Don't skip around
+1. **Start with Camera Feed** - Understand the fundamentals
+2. **Run each module independently** - Don't skip around
 3. **Read the code comments** - They explain the "why"
 4. **Modify and experiment** - Change parameters, try new things
 5. **Use the print statements** - Debug output helps understanding

@@ -1,12 +1,12 @@
 """
-Lesson 01: Open the camera (OpenCV).
+Camera Feed: Open the camera (OpenCV).
 
 Goal:
 - Show how to open a webcam with cv2.VideoCapture and display frames.
 
 Run:
 - . .venv/bin/activate
-- CAMERA_INDEX=0 python lessons/lesson_01_open_camera.py
+- CAMERA_INDEX=0 python src/camera_feed.py
 """
 
 import os
@@ -24,7 +24,7 @@ def main():
         if not ok:
             break
 
-        cv2.imshow("Lesson 01 - Camera", frame)
+        cv2.imshow("Camera Feed - Camera", frame)
         key = cv2.waitKey(1) & 0xFF
         if key == 27:  # Esc
             break

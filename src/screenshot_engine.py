@@ -1,5 +1,5 @@
 """
-Lesson 03: Take a screenshot when 2 fingers are raised.
+Screenshot Engine: Take a screenshot when 2 fingers are raised.
 
 Goal:
 - Combine finger counting + saving a full desktop screenshot.
@@ -7,7 +7,7 @@ Goal:
 
 Run:
 - . .venv/bin/activate
-- CAMERA_INDEX=0 python lessons/lesson_03_two_finger_screenshot.py
+- CAMERA_INDEX=0 python src/screenshot_engine.py
 """
 
 import math
@@ -105,7 +105,7 @@ def main():
         now = time.time()
         if count == 2 and not wait_release and (now - last_shot) >= cooldown:
             screenshots_dir.mkdir(parents=True, exist_ok=True)
-            filename = datetime.now().strftime("lesson03_%Y%m%d_%H%M%S_%f")[:-3] + ".png"
+            filename = datetime.now().strftime("capture_%Y%m%d_%H%M%S_%f")[:-3] + ".png"
             out_path = screenshots_dir / filename
             try:
                 import mss
@@ -124,7 +124,7 @@ def main():
 
         cv2.putText(frame, f"FINGERS: {count if count is not None else '-'}", (20, 40), 1, 1.2, (0, 255, 0), 2)
         cv2.putText(frame, f"STATUS: {status[:54]}", (20, 80), 1, 0.8, (200, 220, 255), 2)
-        cv2.imshow("Lesson 03 - 2 finger screenshot", frame)
+        cv2.imshow("Screenshot Engine - 2 finger screenshot", frame)
         key = cv2.waitKey(1) & 0xFF
         if key == 27:
             break

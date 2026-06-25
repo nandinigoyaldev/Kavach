@@ -1,5 +1,5 @@
 """
-Spotify integration module. See lessons/lesson_05_spotify_integration.py for the educational version.
+Spotify integration module. See src/spotify_controller.py for the full standalone version.
 """
 
 import os

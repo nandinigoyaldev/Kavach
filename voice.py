@@ -1,5 +1,5 @@
 """
-Voice recognition module. See lessons/lesson_04_voice_control.py for the educational version.
+Voice recognition module. See src/voice_assistant.py for the full standalone version.
 """
 
 import threading

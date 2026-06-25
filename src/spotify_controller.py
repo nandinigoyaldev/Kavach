@@ -1,5 +1,5 @@
 """
-Lesson 05: Spotify Integration
+Spotify Integration: Spotify Integration
 
 Goal:
 - Learn how to control music playback on Spotify
@@ -16,7 +16,7 @@ Concepts:
 
 Run:
 - . .venv/bin/activate
-- python lessons/lesson_05_spotify_integration.py
+- python src/spotify_controller.py
 """
 
 import os

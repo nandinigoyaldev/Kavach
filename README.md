@@ -1,6 +1,6 @@
-## JARVIS — Beginner Guide (Gesture + Voice)
+## JARVIS — Hackathon Project (Gesture + Voice)
 
-Welcome! This repo teaches you how to build a simple JARVIS-style assistant using hand gestures, voice commands, and (optionally) Spotify control. The instructions below assume you are using Linux and have a webcam and microphone available.
+Welcome! This repo is a hackathon project that implements a JARVIS-style assistant using hand gestures, voice commands, and (optionally) Spotify control. The instructions below assume you are using Linux and have a webcam and microphone available.
 
 If you cloned this repo from GitHub, replace the repository URL in the commands below with your repo's URL.
 
@@ -88,8 +88,8 @@ Create the Spotify app and add the redirect URI in the Spotify Developer Dashboa
 ### 6) What each file/folder is for
 
 - `gesture.py` — Main launcher that runs the full JARVIS app.
-- `lessons/` — Small, focused lesson scripts for teaching step-by-step.
-- `lessons/lesson_06_gesture_recognition_full.py` — Full app implementation (same as `gesture.py` behavior).
+- `src/` — Small, focused lesson scripts for teaching step-by-step.
+- `src/main.py` — Full app implementation (same as `gesture.py` behavior).
 - `spotify.py`, `voice.py` — Helpers for Spotify and voice recognition.
 - `audios/` — Sound effects used by the app.
 - `requirements.txt` — Python dependencies to install.
@@ -106,20 +106,20 @@ Controls inside the app:
 - `M` — Switch between GESTURE and SPOTIFY modes
 - `ESC` — Quit the application
 
-### 8) Run an individual lesson (recommended for beginners)
+### 8) Run individual modules
 
-Start with the camera lesson:
+Start with the camera module:
 
 ```bash
-python lessons/lesson_01_open_camera.py
+python src/camera_feed.py
 ```
 
-Then follow lessons in order:
-- `lesson_02_count_fingers.py` — MediaPipe hand detection and finger counting
-- `lesson_03_two_finger_screenshot.py` — Trigger screenshots with 2 fingers
-- `lesson_04_voice_control.py` — Voice listener demo
-- `lesson_05_spotify_integration.py` — Spotify API demo
-- `lesson_06_gesture_recognition_full.py` — Full system (same features as `gesture.py`)
+The modules available are:
+- `gesture_tracker.py` — MediaPipe hand detection and finger counting
+- `screenshot_engine.py` — Trigger screenshots with 2 fingers
+- `voice_assistant.py` — Voice listener demo
+- `spotify_controller.py` — Spotify API demo
+- `main.py` — Full system (same features as `gesture.py`)
 
 ### 9) Gestures supported (quick reference)
 
@@ -161,10 +161,8 @@ python -m sounddevice
 
 ### 13) Contributing and classroom usage
 
-This repo is organized for teaching. For workshops we recommend:
-- Run lessons in order
-- Ask students to modify small parts (e.g., change gesture actions)
-- Use `lesson_06_gesture_recognition_full.py` as the final demo
+This repo was built during a hackathon.
+Use `main.py` as the main entry point.
 
 ---
 
@@ -173,7 +171,7 @@ If you want, I can also:
 - Add a minimal `profiles.json` example with comments
 - Create a `run.sh` helper script that sets up the venv and runs the app
 
-Happy teaching! 🎓
+Happy hacking! 🚀
 
 
 4. If using Spotify API control, set:

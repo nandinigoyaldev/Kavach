@@ -2,9 +2,9 @@
 JARVIS Gesture + Voice Controller
 
 Teaching path (small, focused scripts):
-- Lesson 01: `lessons/lesson_01_open_camera.py`
-- Lesson 02: `lessons/lesson_02_count_fingers.py`
-- Lesson 03: `lessons/lesson_03_two_finger_screenshot.py`
+- Camera Feed: `src/camera_feed.py`
+- Gesture Tracker: `src/gesture_tracker.py`
+- Screenshot Engine: `src/screenshot_engine.py`
 """
 
 import glob

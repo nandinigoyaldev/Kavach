@@ -1,5 +1,5 @@
 """
-Lesson 02: Detect a hand and count raised fingers (MediaPipe).
+Gesture Tracker: Detect a hand and count raised fingers (MediaPipe).
 
 Goal:
 - Introduce MediaPipe Hands.
@@ -7,7 +7,7 @@ Goal:
 
 Run:
 - . .venv/bin/activate
-- CAMERA_INDEX=0 python lessons/lesson_02_count_fingers.py
+- CAMERA_INDEX=0 python src/gesture_tracker.py
 """
 
 import math
@@ -89,7 +89,7 @@ def main():
             count = count_raised_fingers(hl.landmark)
 
         cv2.putText(frame, f"FINGERS: {count if count is not None else '-'}", (20, 40), 1, 1.2, (0, 255, 0), 2)
-        cv2.imshow("Lesson 02 - Count fingers", frame)
+        cv2.imshow("Gesture Tracker - Count fingers", frame)
         key = cv2.waitKey(1) & 0xFF
         if key == 27:
             break

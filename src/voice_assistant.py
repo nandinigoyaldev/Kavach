@@ -1,5 +1,5 @@
 """
-Lesson 04: Voice Command Recognition
+Voice Assistant: Voice Command Recognition
 
 Goal:
 - Learn how to listen for voice commands using a microphone
@@ -14,7 +14,7 @@ Concepts:
 
 Run:
 - . .venv/bin/activate
-- python lessons/lesson_04_voice_control.py
+- python src/voice_assistant.py
 """
 
 import threading

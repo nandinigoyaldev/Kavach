@@ -1,274 +1,67 @@
-## autobotx — Hackathon Project (Gesture + Voice)
+# autobotx
 
-Welcome! This repo is a hackathon project that implements a autobotx-style assistant using hand gestures, voice commands, and (optionally) Spotify control. The instructions below assume you are using Linux and have a webcam and microphone available.
+Welcome to **autobotx**, a futuristic AI assistant integrating powerful hand gesture control, voice recognition, and an interactive web interface. Built for performance and seamless multimodal interaction, autobotx allows you to control your computer without touching the keyboard.
 
-If you cloned this repo from GitHub, replace the repository URL in the commands below with your repo's URL.
+## Features
 
-### 1) Clone repository
+- **Advanced Hand Gesture Recognition:** Utilizes MediaPipe for high-performance, real-time hand tracking. Control the system using intuitive gestures like pinches, finger counting, and open palms.
+- **Voice Commands:** Integrated local and cloud-based speech recognition allows you to speak naturally to autobotx.
+- **Web Interface:** Includes a fully functional web dashboard with sign language recognition and a beautiful holographic UI.
+- **Cross-Platform:** Designed to run seamlessly on Linux, macOS, and Windows.
 
+## Installation
+
+### 1. Clone the repository
 ```bash
-# replace <your-repo-url> with the GitHub URL
 git clone <your-repo-url>
 cd Auto_bot_x
 ```
 
-### 2) Create Python virtual environment and activate
-
+### 2. Set up the virtual environment
 ```bash
 python3 -m venv .venv
-. .venv/bin/activate
+source .venv/bin/activate
 ```
 
-Windows (PowerShell):
+*(For Windows, use `.venv\Scripts\activate`)*
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-```
-
-Windows (cmd.exe):
-
-```cmd
-python -m venv .venv
-.\.venv\Scripts\activate.bat
-```
-
-### 3) Install Python dependencies
-
+### 3. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-If the install fails for `mediapipe` or other packages, follow the errors and install any missing system packages (example: `sudo apt install build-essential libatlas-base-dev`).
+*Note: Depending on your OS, you may need additional system libraries for audio (e.g., `portaudio19-dev` on Linux or `portaudio` via Homebrew on macOS).*
 
-Notes by OS:
+## Running the Application
 
-- Linux: you may need build tools and PortAudio for audio support:
-
-```bash
-sudo apt install build-essential libatlas-base-dev portaudio19-dev
-```
-
-- macOS (Intel / Apple Silicon): install Homebrew then:
+To start the main desktop assistant:
 
 ```bash
-brew install portaudio ffmpeg
-python3 -m venv .venv
-. .venv/bin/activate
-pip install -r requirements.txt
-```
-
-On Apple Silicon you may need to use Python from Homebrew or install universal2 wheels for some packages.
-
-- Windows: install "Build Tools for Visual Studio" (C++), then activate venv and run `pip install -r requirements.txt`.
-   If `sounddevice` or `mediapipe` fail, install prebuilt wheels or use `pipwin` for PortAudio where applicable.
-
-### 4) Optional system packages (recommended)
-
-```bash
-# Local media control fallback
-sudo apt install playerctl
-
-# Text-to-speech (optional)
-sudo apt install speech-dispatcher espeak
-```
-
-### 5) Configure environment variables (optional — Spotify)
-
-To enable Spotify Web API control, create a `.env` file in the project root with:
-
-```
-SPOTIFY_CLIENT_ID=your_client_id
-SPOTIFY_CLIENT_SECRET=your_client_secret
-SPOTIFY_REDIRECT_URI=http://127.0.0.1:8888/callback
-```
-
-Create the Spotify app and add the redirect URI in the Spotify Developer Dashboard.
-
-### 6) What each file/folder is for
-
-
-- `autobotx/` — Small, focused lesson scripts for teaching step-by-step.
-- `autobotx/main.py` — Full app implementation (same as `gesture.py` behavior).
-
-- `audios/` — Sound effects used by the app.
-- `requirements.txt` — Python dependencies to install.
-
-### 7) Run the full autobotx app
-
-```bash
-# Use CAMERA_INDEX to select the webcam if you have multiple
-CAMERA_INDEX=0 python -m autobotx.main
-```
-
-Controls inside the app:
-- `V` — Toggle voice recognition on/off
-- `M` — Switch between GESTURE and SPOTIFY modes
-- `ESC` — Quit the application
-
-### 8) Run individual modules
-
-Start with the camera module:
-
-```bash
-python autobotx/camera_feed.py
-```
-
-The modules available are:
-- `gesture_tracker.py` — MediaPipe hand detection and finger counting
-- `screenshot_engine.py` — Trigger screenshots with 2 fingers
-- `voice_assistant.py` — Voice listener demo
-- `spotify_controller.py` — Spotify API demo
-- `main.py` — Full system (same features as `gesture.py`)
-
-### 9) Gestures supported (quick reference)
-
-- `1 finger` — Open browser (one-time trigger)
-- `pinch` (thumb + index) — Sparkle effect (audio/visual)
-- `2 fingers` — Screenshot (saves to `screenshots/` by default)
-- `5 fingers` — Enter autobotx mode
-
-In `SPOTIFY` mode (press `M`):
-- `1` — Play
-- `2` — Pause
-- `3` — Previous track
-- `4` — Next track
-
-### 10) Customizing gestures
-
-Open or create `profiles.json` in the project root to remap gestures or adjust settings. The default profile contains mappings for `gesture_mode_gestures` and `spotify_gestures`.
-
-### 11) Ignore screenshots folder in the repo
-
-This project keeps automatic screenshots locally. The repository is configured to ignore the `screenshots/` folder — no changes needed. (If you want to remove it from `.gitignore`, edit `.gitignore`.)
-
-### 12) Troubleshooting
-
-- If OpenCV windows are blank on Wayland, run:
-
-```bash
-export QT_QPA_PLATFORM=xcb
 python -m autobotx.main
 ```
 
-- If microphone input is not detected, run:
+### Controls
+
+- **Gestures:** Use standard gestures (e.g., raising 5 fingers) to interact.
+- **V:** Toggle voice recognition on or off from the camera window.
+- **ESC:** Quit the application.
+
+## Web Application
+
+The project includes a serverless-ready web dashboard with built-in sign language recognition.
+
+To run the web app locally:
 
 ```bash
-python -m sounddevice
+cd web_app
+pip install -r requirements.txt
+uvicorn api.index:app --reload
 ```
+Open `http://localhost:8000` to view the interface.
 
-- If Spotify API fails, ensure `.env` is configured and redirect URI matches your Spotify app settings.
+## Configuration
 
-### 13) Contributing and classroom usage
-
-This repo was built during a hackathon.
-Use `main.py` as the main entry point.
+You can customize gestures and configurations by editing `profiles.json` in the project root. Advanced environment variables (like API keys) can be managed via a `.env` file.
 
 ---
-
-If you want, I can also:
-- Add a short `CONTRIBUTING.md` tailored for student exercises
-- Add a minimal `profiles.json` example with comments
-- Create a `run.sh` helper script that sets up the venv and runs the app
-
-Happy hacking! 🚀
-
-
-4. If using Spotify API control, set:
-   - `SPOTIFY_CLIENT_ID`
-   - `SPOTIFY_CLIENT_SECRET`
-   - `SPOTIFY_REDIRECT_URI` (must match your Spotify app config)
-
-## Run
-
-```bash
-jarvis-gesture
-```
-
-Or:
-
-```bash
-python scripts/run_gesture.py
-```
-
-## Controls
-
-- Press `v` in the camera window to toggle voice mode on/off.
-- Press `Esc` to exit.
-- When voice mode is on, gesture actions are paused to prevent accidental triggers.
-
-## Environment Variables
-
-See `.env.example` for all supported keys. Important ones:
-
-- Spotify API: `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REDIRECT_URI`
-- Cloud AI chat: `OPENAI_API_KEY` or `AI_CHAT_API_KEY`, `AI_CHAT_API_BASE`, `AI_CHAT_MODEL`
-- Local AI chat (Ollama): `AI_LOCAL_API_BASE`, `AI_LOCAL_MODEL`, `AI_AUTO_START_OLLAMA`
-- Camera selection: `CAMERA_INDEX` (example: `0` or `0,1`)
-- Visual theme: `JARVIS_THEME` (`auto`, `amber`, `cyan`)
-- Render quality: `RENDER_QUALITY` (`performance`, `balanced`, `ultra`)
-- HUD/FPS display: `SHOW_FPS` (`true`/`false`), `JARVIS_BUILD_TAG` (example: `v1.0.0`)
-
-## Troubleshooting
-
-### Voice hears you but no spoken reply
-
-The app speaks via `spd-say` first, then `espeak` fallback.
-Install one of these packages:
-
-```bash
-sudo apt install speech-dispatcher espeak
-```
-
-### Spotify commands do not respond
-
-- Ensure Spotify desktop/web is running and currently active.
-- If API credentials are not set, install local fallback control:
-
-```bash
-sudo apt install playerctl
-```
-
-### Camera does not open
-
-- Confirm webcam permissions.
-- Try setting `CAMERA_INDEX` in `.env`.
-
-## Security
-
-- Never commit `.env`.
-- Rotate keys immediately if exposed.
-- See `SECURITY.md` for reporting guidance.
-
-## Contributing
-
-See `CONTRIBUTING.md`.
-
-## Activate the env
-
-```bash
-source myenv/bin/activate
-```
-
-## Web Application & Sign Language (Vercel Ready)
-
-The Autobot project now includes a futuristic, autobotx-styled web interface with built-in Sign Language Recognition!
-
-### Features
-- **Sign Language Recognition**: Detects basic signs (A/Fist, V/2, 5/Open, 1/Point) directly in your browser.
-- **autobotx Aesthetics**: Monospaced terminal fonts, cyan wireframes, and holographic scanlines.
-- **Vercel Deployable**: The `web_app/` folder is pre-configured to be deployed instantly on Vercel as a Serverless API + Static Frontend.
-
-### Running Locally
-To test the web app on your local machine:
-1. Navigate to the web directory: `cd web_app`
-2. Install the web dependencies: `pip install -r requirements.txt`
-3. Run the backend server: `uvicorn api.index:app --reload`
-4. Open your browser and go to `http://localhost:8000`
-
-### Deploying to Vercel
-1. Push this repository to GitHub.
-2. Log into Vercel and click **Add New Project**.
-3. Import your GitHub repository.
-4. Set the **Root Directory** to `web_app`.
-5. Vercel will automatically detect `vercel.json` and deploy both the Python Serverless function and the static frontend!
+*Built with ❤️ using Python, OpenCV, and MediaPipe.*

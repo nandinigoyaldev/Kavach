@@ -5,11 +5,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "autobotx"
 version = "0.1.0"
-description = "Hand-gesture, voice, and Spotify controller"
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [{ name = "Your Name" }]
-keywords = ["gesture-control", "opencv", "mediapipe", "spotify", "voice-assistant", "autobotx"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
@@ -29,7 +27,6 @@ dependencies = [
   "mss",
   "sounddevice==0.5.5",
   "SpeechRecognition==3.16.0",
-  "spotipy==2.25.1",
 ]
 
 [project.scripts]

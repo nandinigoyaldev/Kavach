@@ -20,6 +20,9 @@ let runningMode = "VIDEO";
 let webcamRunning = false;
 let lastVideoTime = -1;
 let currentEmotion = "NEUTRAL";
+let activeUser = null;
+let activeProfile = null;
+const profileStatus = document.getElementById("profile-status");
 let jarvisRotation = 0;
 let currentVisualContext = [];
 
@@ -621,10 +624,39 @@ if (SpeechRecognition) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ prompt: command, context: currentVisualContext, image: base64Image, emotion: currentEmotion })
+            body: JSON.stringify({ prompt: command, context: currentVisualContext, image: base64Image, emotion: currentEmotion, activeUser: activeUser })
         })
         .then(res => res.json())
         .then(data => {
+            // Dynamic Profile UI Adaptation
+            if (data.active_profile) {
+                activeProfile = data.active_profile;
+                activeUser = activeProfile.name;
+                let condStr = activeProfile.conditions.length > 0 ? ` (${activeProfile.conditions.join(", ")})` : "";
+                if (profileStatus) {
+                    profileStatus.textContent = `USER: ${activeUser.toUpperCase()}${condStr}`;
+                    profileStatus.className = "badge active";
+                }
+                
+                // Physical Accessibility Adaptations
+                let conds = activeProfile.conditions.map(c => c.toLowerCase());
+                
+                // 1. Deaf/Hard of Hearing -> Enlarge Voice UI, ignore speakText reliance
+                const voiceOutBox = document.getElementById("voice-output");
+                if (conds.some(c => c.includes("deaf") || c.includes("hearing"))) {
+                    if (voiceOutBox) voiceOutBox.style.fontSize = "1.6rem";
+                } else {
+                    if (voiceOutBox) voiceOutBox.style.fontSize = "";
+                }
+                
+                // 2. Amputee -> Restrict CV to 1 Hand to save compute and stop glitches
+                if (conds.some(c => c.includes("arm") || c.includes("amputee") || c.includes("hand"))) {
+                    if (handLandmarker) handLandmarker.setOptions({ numHands: 1 });
+                } else {
+                    if (handLandmarker) handLandmarker.setOptions({ numHands: 2 });
+                }
+            }
+
             if (data.response) {
                 let cleanResponse = data.response;
                 

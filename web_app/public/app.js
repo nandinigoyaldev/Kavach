@@ -112,9 +112,6 @@ function initializeSystem(event) {
         
         const constraints = { video: { facingMode: "user" }, audio: true };
         navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
-            // Release the microphone track immediately so SpeechRecognition can use it!
-            stream.getAudioTracks().forEach(track => track.stop());
-            
             video.srcObject = stream;
             video.addEventListener("loadeddata", predictWebcam);
             
@@ -241,13 +238,8 @@ function drawLandmarks(ctx, landmarks, options) {
 
 function drawJarvisCircle(ctx, landmarks, handName) {
     const center = landmarks[9]; // Middle finger MCP
-    const x = center.x * canvasElement.width;
-    const y = center.y * canvasElement.height;
-    
-    const wrist = landmarks[0];
-    const middleTip = landmarks[12];
-    const dx = (wrist.x - middleTip.x) * canvasElement.width;
-    const dy = (wrist.y - middleTip.y) * canvasElement.height;
+    const dx = landmarks[0].x - landmarks[9].x;
+    const dy = landmarks[0].y - landmarks[9].y;
     const handSize = Math.sqrt(dx*dx + dy*dy);
     
     const baseRadius = 90 + (handSize * 0.2);
@@ -255,33 +247,23 @@ function drawJarvisCircle(ctx, landmarks, handName) {
     const time = Date.now();
     const pulse = Math.sin(time / 150) * 0.05 + 1.0; 
 
-    const hue = handName === "Left" ? 180 : 35;
+    // Determine color based on hand
+    const hue = handName === "Left" ? 180 : 35; // Cyan for left, Orange for right
     
     ctx.save();
-    ctx.translate(x, y);
-    ctx.scale(pulse, pulse); 
-    
-    // Core glow
+    ctx.translate(center.x * canvasElement.width, center.y * canvasElement.height);
+    ctx.rotate(jarvisRotation);
+    ctx.scale(pulse, pulse);
+
+    // Make the colors pop much stronger
+    ctx.globalCompositeOperation = "screen";
+
+    // Heavy Outer glow
     ctx.beginPath();
-    ctx.arc(0, 0, baseRadius * 0.3, 0, 2 * Math.PI);
-    ctx.fillStyle = `hsla(${hue}, 100%, 50%, 0.15)`;
-    ctx.shadowBlur = 30;
-    ctx.shadowColor = `hsl(${hue}, 100%, 50%)`;
+    ctx.arc(0, 0, baseRadius + 20, 0, 2 * Math.PI);
+    ctx.fillStyle = `hsla(${hue}, 100%, 50%, 0.4)`;
     ctx.fill();
 
-    // Inner fast-rotating dashed ring
-    ctx.save();
-    ctx.rotate(jarvisRotation * 2.5);
-    ctx.beginPath();
-    ctx.arc(0, 0, baseRadius * 0.7, 0, 2 * Math.PI);
-    ctx.strokeStyle = `hsla(${hue}, 100%, 60%, 0.9)`;
-    ctx.lineWidth = 3;
-    ctx.setLineDash([15, 10, 5, 10]);
-    ctx.stroke();
-    ctx.restore();
-    
-    // Middle solid ring with gaps (reverse rotation)
-    ctx.save();
     ctx.rotate(-jarvisRotation * 1.5);
     ctx.beginPath();
     ctx.arc(0, 0, baseRadius * 1.0, 0.2, 2 * Math.PI - 0.2);
@@ -398,7 +380,7 @@ const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecogni
 if (SpeechRecognition) {
     recognition = new SpeechRecognition();
     recognition.continuous = true;
-    recognition.interimResults = false;
+    recognition.interimResults = true;
     recognition.lang = 'en-US';
     
     recognition.onstart = () => {
@@ -408,13 +390,46 @@ if (SpeechRecognition) {
     };
     
     recognition.onresult = (event) => {
-        const last = event.results.length - 1;
-        let text = event.results[last][0].transcript.trim().toLowerCase();
+        let interimTranscript = '';
+        let finalTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript;
+            } else {
+                interimTranscript += event.results[i][0].transcript;
+            }
+        }
         
-        console.log("Speech captured:", text);
-        addNotification("🎤 Heard: '" + text + "'");
+        const partial = (finalTranscript + interimTranscript).trim();
+        if (partial.length > 0) {
+            const voiceOutput = document.getElementById("voice-output");
+            if (voiceOutput) {
+                let placeholder = voiceOutput.querySelector(".interim-msg");
+                if (!placeholder) {
+                    placeholder = document.createElement("p");
+                    placeholder.className = "interim-msg sys-msg";
+                    placeholder.style.color = "var(--primary-glow)";
+                    voiceOutput.appendChild(placeholder);
+                }
+                placeholder.innerHTML = `<em>...${partial}</em>`;
+                voiceOutput.scrollTop = voiceOutput.scrollHeight;
+            }
+        }
+        
+        let text = finalTranscript.trim().toLowerCase();
         
         if (text) {
+            console.log("Final Speech captured:", text);
+            addNotification("🎤 Heard: '" + text + "'");
+            
+            // Remove interim placeholder
+            const voiceOutput = document.getElementById("voice-output");
+            if (voiceOutput) {
+                const placeholder = voiceOutput.querySelector(".interim-msg");
+                if (placeholder) placeholder.remove();
+            }
+            
             const wakeWords = ["hey jarvis", "jarvis"];
             let isWakeWordDetected = false;
             let command = "";
@@ -488,6 +503,11 @@ if (SpeechRecognition) {
         addNotification("Speech Error: " + event.error);
         if (event.error === "not-allowed") {
             addNotification("Microphone access denied. Please check permissions.");
+            isVoiceEnabled = false;
+        }
+        if (event.error === "network") {
+            addNotification("Network error: Browser speech recognition failed. Try using Google Chrome.");
+            isVoiceEnabled = false;
         }
     };
     
@@ -512,7 +532,6 @@ if (SpeechRecognition) {
 function addVoiceMessage(sender, text) {
     const voiceOutput = document.getElementById("voice-output");
     if (voiceOutput) {
-        // Remove placeholder if present
         const placeholder = voiceOutput.querySelector(".sys-msg");
         if (placeholder && placeholder.textContent.includes("Waiting")) {
             placeholder.remove();
@@ -528,8 +547,6 @@ function addVoiceMessage(sender, text) {
 // Text to Speech (Speech Synthesis)
 function speakText(text) {
     if (!window.speechSynthesis) return;
-    
-    // Cancel any ongoing speech
     window.speechSynthesis.cancel();
     
     const utterance = new SpeechSynthesisUtterance(text);
@@ -537,7 +554,6 @@ function speakText(text) {
     utterance.pitch = 0.8;
     utterance.rate = 1.05;
     
-    // Try to find a male British voice
     const voices = window.speechSynthesis.getVoices();
     let jarvisVoice = voices.find(v => 
         v.name.includes("Daniel") || 
@@ -546,10 +562,8 @@ function speakText(text) {
     );
     
     if (!jarvisVoice) {
-        // Fallback to any en-GB voice
         jarvisVoice = voices.find(v => v.lang === 'en-GB');
     }
-    
     if (jarvisVoice) {
         utterance.voice = jarvisVoice;
     }

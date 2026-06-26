@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
 from pydantic import BaseModel
 import time
 import os
@@ -17,7 +17,7 @@ system_prompt = (
     "Refer to the user as 'Sir' or 'Madam' occasionally."
 )
 
-model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=system_prompt)
+model = genai.GenerativeModel('gemini-2.5-flash', system_instruction=system_prompt)
 chat_session = model.start_chat(history=[])
 
 app = FastAPI(title="Autobot API")
@@ -39,6 +39,25 @@ async def process_voice(data: VoicePrompt):
         print(f"LLM Error: {llm_err}")
         return {"response": "I'm sorry, I encountered an error processing your request."}
 
+@app.post("/api/voice-audio")
+async def process_voice_audio(audio: UploadFile = File(...)):
+    if not os.environ.get("GEMINI_API_KEY"):
+        return {"response": "Gemini API Key is missing."}
+    
+    try:
+        audio_bytes = await audio.read()
+        mime = audio.content_type if audio.content_type else "audio/webm"
+        
+        # Send audio directly to Gemini
+        llm_response = chat_session.send_message([
+            {"mime_type": mime, "data": audio_bytes},
+            "Listen to this spoken command and respond to it."
+        ])
+        return {"response": llm_response.text}
+    except Exception as llm_err:
+        print(f"Audio LLM Error: {llm_err}")
+        return {"response": "I'm sorry, I encountered an error processing your audio."}
+
 class SignPayload(BaseModel):
     sign: str
 
@@ -48,6 +67,10 @@ class RegisterPayload(BaseModel):
 @app.get("/api/health")
 async def health_check():
     return {"status": "online", "system": "Touchless Kiosk", "timestamp": time.time()}
+
+@app.get("/api/config")
+async def get_config():
+    return {"picovoiceKey": os.environ.get("PICOVOICE_ACCESS_KEY", "")}
 
 from fastapi.staticfiles import StaticFiles
 import os

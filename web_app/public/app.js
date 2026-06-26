@@ -3,8 +3,7 @@ import { HandLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@m
 const video = document.getElementById("webcam");
 const canvasElement = document.getElementById("output_canvas");
 const canvasCtx = canvasElement.getContext("2d");
-const enableWebcamButton = document.getElementById("enableWebcamButton");
-const enableVoiceButton = document.getElementById("enableVoiceButton");
+const initializeSystemButton = document.getElementById("initializeSystemButton");
 const apiStatus = document.getElementById("api-status");
 const camStatus = document.getElementById("camera-status");
 const voiceStatus = document.getElementById("voice-status");
@@ -62,36 +61,70 @@ async function createHandLandmarker() {
         minHandPresenceConfidence: 0.7,
         minTrackingConfidence: 0.7
     });
-    enableWebcamButton.classList.remove("disabled");
+    if (initializeSystemButton) {
+        initializeSystemButton.classList.remove("disabled");
+    }
     addNotification("Vision System Initialized.");
 }
 
 createHandLandmarker();
 
 if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    enableWebcamButton.addEventListener("click", enableCam);
+    if (initializeSystemButton) {
+        initializeSystemButton.addEventListener("click", initializeSystem);
+    }
 }
 
-function enableCam(event) {
+let systemInitialized = false;
+
+function initializeSystem(event) {
     if (!handLandmarker) return;
 
-    if (webcamRunning === true) {
+    if (systemInitialized) {
+        // Shutdown
+        systemInitialized = false;
+        initializeSystemButton.innerHTML = "Initialize J.A.R.V.I.S.";
+        initializeSystemButton.classList.remove("active");
+        
         webcamRunning = false;
-        enableWebcamButton.innerHTML = "Enable Camera";
         camStatus.textContent = "CAM: OFFLINE";
         camStatus.className = "badge";
-        video.srcObject.getTracks().forEach(track => track.stop());
+        if (video.srcObject) {
+            video.srcObject.getTracks().forEach(track => track.stop());
+        }
+        
+        isVoiceEnabled = false;
+        voiceStatus.textContent = "VOICE: OFFLINE";
+        voiceStatus.className = "badge";
+        if (recognition) {
+            recognition.stop();
+        }
+        addNotification("J.A.R.V.I.S. deactivated.");
     } else {
+        // Startup
+        systemInitialized = true;
+        initializeSystemButton.innerHTML = "Disable J.A.R.V.I.S.";
+        initializeSystemButton.classList.add("active");
+        
         webcamRunning = true;
-        enableWebcamButton.innerHTML = "Disable Camera";
         camStatus.textContent = "CAM: ONLINE";
         camStatus.className = "badge active";
-
+        
         const constraints = { video: { facingMode: "user" } };
         navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
             video.srcObject = stream;
             video.addEventListener("loadeddata", predictWebcam);
         });
+
+        isVoiceEnabled = true;
+        voiceStatus.textContent = "VOICE: LISTENING";
+        voiceStatus.className = "badge active";
+        if (recognition) {
+            try {
+                recognition.start();
+            } catch (e) {}
+        }
+        addNotification("J.A.R.V.I.S. initialized. Say 'Hey Jarvis' to interact.");
     }
 }
 
@@ -317,6 +350,30 @@ function drawJarvisCircle(ctx, landmarks, handName) {
     ctx.restore();
 }
 
+function playWakeChime() {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    
+    const audioCtx = new AudioContext();
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    
+    osc.type = 'sine';
+    // Classic high-tech double beep effect
+    osc.frequency.setValueAtTime(880, audioCtx.currentTime); 
+    osc.frequency.setValueAtTime(1760, audioCtx.currentTime + 0.1);
+    
+    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.05);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+    
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    osc.start(audioCtx.currentTime);
+    osc.stop(audioCtx.currentTime + 0.2);
+}
+
 // --- Voice Assistant ---
 
 let isVoiceEnabled = false;
@@ -338,36 +395,61 @@ if (SpeechRecognition) {
     
     recognition.onresult = (event) => {
         const last = event.results.length - 1;
-        const text = event.results[last][0].transcript.trim();
+        let text = event.results[last][0].transcript.trim().toLowerCase();
         
         if (text) {
-            addVoiceMessage("You", text);
-            // Send to backend via REST API
-            fetch('/api/voice', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ prompt: text })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.response) {
-                    addVoiceMessage("Bot", data.response);
-                    speakText(data.response);
+            const wakeWords = ["hey jarvis", "jarvis"];
+            let isWakeWordDetected = false;
+            let command = "";
+            
+            for (let word of wakeWords) {
+                if (text.startsWith(word) || text.includes(word)) {
+                    isWakeWordDetected = true;
+                    const idx = text.indexOf(word);
+                    command = text.substring(idx + word.length).trim();
+                    break;
                 }
-            })
-            .catch(err => {
-                console.error("Voice API error:", err);
-                addNotification("Failed to connect to voice backend.");
-            });
+            }
+            
+            if (isWakeWordDetected && command.length > 0) {
+                addVoiceMessage("You", command);
+                voiceStatus.textContent = "VOICE: PROCESSING";
+                
+                // Send to backend via REST API
+                fetch('/api/voice', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ prompt: command })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.response) {
+                        addVoiceMessage("J.A.R.V.I.S.", data.response);
+                        speakText(data.response);
+                    }
+                    if (isVoiceEnabled) {
+                        voiceStatus.textContent = "VOICE: LISTENING";
+                    }
+                })
+                .catch(err => {
+                    console.error("Voice API error:", err);
+                    addNotification("Failed to connect to voice backend.");
+                    if (isVoiceEnabled) {
+                        voiceStatus.textContent = "VOICE: LISTENING";
+                    }
+                });
+            } else if (isWakeWordDetected && command.length === 0) {
+                 playWakeChime();
+            }
         }
     };
     
     recognition.onerror = (event) => {
         console.error("Speech recognition error", event.error);
         if (event.error === "not-allowed") {
-            toggleVoice();
+            addNotification("Microphone access denied. Please check permissions.");
         }
     };
     
@@ -385,39 +467,7 @@ if (SpeechRecognition) {
         }
     };
 } else {
-    enableVoiceButton.disabled = true;
-    enableVoiceButton.textContent = "Voice Not Supported";
     addNotification("Web Speech API not supported in this browser.");
-}
-
-function toggleVoice() {
-    isVoiceEnabled = !isVoiceEnabled;
-    
-    if (isVoiceEnabled) {
-        enableVoiceButton.textContent = "Disable Voice Bot";
-        enableVoiceButton.classList.add("active");
-        voiceStatus.textContent = "VOICE: LISTENING";
-        voiceStatus.className = "badge active";
-        if (recognition) {
-            try {
-                recognition.start();
-            } catch (e) {}
-        }
-        addNotification("Voice assistant activated.");
-    } else {
-        enableVoiceButton.textContent = "Enable Voice Bot";
-        enableVoiceButton.classList.remove("active");
-        voiceStatus.textContent = "VOICE: OFFLINE";
-        voiceStatus.className = "badge";
-        if (recognition) {
-            recognition.stop();
-        }
-        addNotification("Voice assistant deactivated.");
-    }
-}
-
-if (enableVoiceButton) {
-    enableVoiceButton.addEventListener("click", toggleVoice);
 }
 
 function addVoiceMessage(sender, text) {
@@ -444,9 +494,26 @@ function speakText(text) {
     window.speechSynthesis.cancel();
     
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
-    utterance.pitch = 1.0;
-    utterance.rate = 1.0;
+    utterance.lang = 'en-GB';
+    utterance.pitch = 0.8;
+    utterance.rate = 1.05;
+    
+    // Try to find a male British voice
+    const voices = window.speechSynthesis.getVoices();
+    let jarvisVoice = voices.find(v => 
+        v.name.includes("Daniel") || 
+        v.name.includes("Google UK English Male") ||
+        (v.lang === "en-GB" && v.name.toLowerCase().includes("male"))
+    );
+    
+    if (!jarvisVoice) {
+        // Fallback to any en-GB voice
+        jarvisVoice = voices.find(v => v.lang === 'en-GB');
+    }
+    
+    if (jarvisVoice) {
+        utterance.voice = jarvisVoice;
+    }
     
     // Temporarily pause recognition while speaking to avoid hearing itself
     if (recognition && isVoiceEnabled) {
@@ -461,5 +528,12 @@ function speakText(text) {
     }
     
     window.speechSynthesis.speak(utterance);
+}
+
+// Pre-load voices (browser quirk)
+if (window.speechSynthesis) {
+    window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+    };
 }
 

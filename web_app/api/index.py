@@ -1,8 +1,43 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import time
+import os
+import google.generativeai as genai
+from dotenv import load_dotenv
+
+# Try to load .env from root
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", "..", ".env"))
+
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY", ""))
+
+system_prompt = (
+    "You are J.A.R.V.I.S., a highly advanced AI assistant created by Tony Stark. "
+    "You are extremely helpful, highly intelligent, slightly sarcastic, and very formal. "
+    "Keep your answers concise and conversational, as they will be spoken out loud via text-to-speech. "
+    "Refer to the user as 'Sir' or 'Madam' occasionally."
+)
+
+model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=system_prompt)
+chat_session = model.start_chat(history=[])
 
 app = FastAPI(title="Autobot API")
+
+class VoicePrompt(BaseModel):
+    prompt: str
+
+@app.post("/api/voice")
+async def process_voice(data: VoicePrompt):
+    prompt = data.prompt
+    
+    if not os.environ.get("GEMINI_API_KEY"):
+        return {"response": "Gemini API Key is missing."}
+    
+    try:
+        llm_response = chat_session.send_message(prompt)
+        return {"response": llm_response.text}
+    except Exception as llm_err:
+        print(f"LLM Error: {llm_err}")
+        return {"response": "I'm sorry, I encountered an error processing your request."}
 
 class SignPayload(BaseModel):
     sign: str

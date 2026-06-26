@@ -4,8 +4,10 @@ const video = document.getElementById("webcam");
 const canvasElement = document.getElementById("output_canvas");
 const canvasCtx = canvasElement.getContext("2d");
 const enableWebcamButton = document.getElementById("enableWebcamButton");
+const enableVoiceButton = document.getElementById("enableVoiceButton");
 const apiStatus = document.getElementById("api-status");
 const camStatus = document.getElementById("camera-status");
+const voiceStatus = document.getElementById("voice-status");
 
 const gestureOutput = document.getElementById("gesture-output");
 const trackingStatus = document.getElementById("tracking-status");
@@ -314,3 +316,150 @@ function drawJarvisCircle(ctx, landmarks, handName) {
 
     ctx.restore();
 }
+
+// --- Voice Assistant ---
+
+let isVoiceEnabled = false;
+let recognition = null;
+
+// Speech Recognition (Web Speech API)
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+    
+    recognition.onstart = () => {
+        voiceStatus.textContent = "VOICE: LISTENING";
+        voiceStatus.className = "badge active";
+    };
+    
+    recognition.onresult = (event) => {
+        const last = event.results.length - 1;
+        const text = event.results[last][0].transcript.trim();
+        
+        if (text) {
+            addVoiceMessage("You", text);
+            // Send to backend via REST API
+            fetch('/api/voice', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ prompt: text })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.response) {
+                    addVoiceMessage("Bot", data.response);
+                    speakText(data.response);
+                }
+            })
+            .catch(err => {
+                console.error("Voice API error:", err);
+                addNotification("Failed to connect to voice backend.");
+            });
+        }
+    };
+    
+    recognition.onerror = (event) => {
+        console.error("Speech recognition error", event.error);
+        if (event.error === "not-allowed") {
+            toggleVoice();
+        }
+    };
+    
+    recognition.onend = () => {
+        // Auto restart if still enabled
+        if (isVoiceEnabled) {
+            try {
+                recognition.start();
+            } catch (e) {
+                // Ignore already started errors
+            }
+        } else {
+            voiceStatus.textContent = "VOICE: ONLINE (PAUSED)";
+            voiceStatus.className = "badge active";
+        }
+    };
+} else {
+    enableVoiceButton.disabled = true;
+    enableVoiceButton.textContent = "Voice Not Supported";
+    addNotification("Web Speech API not supported in this browser.");
+}
+
+function toggleVoice() {
+    isVoiceEnabled = !isVoiceEnabled;
+    
+    if (isVoiceEnabled) {
+        enableVoiceButton.textContent = "Disable Voice Bot";
+        enableVoiceButton.classList.add("active");
+        voiceStatus.textContent = "VOICE: LISTENING";
+        voiceStatus.className = "badge active";
+        if (recognition) {
+            try {
+                recognition.start();
+            } catch (e) {}
+        }
+        addNotification("Voice assistant activated.");
+    } else {
+        enableVoiceButton.textContent = "Enable Voice Bot";
+        enableVoiceButton.classList.remove("active");
+        voiceStatus.textContent = "VOICE: OFFLINE";
+        voiceStatus.className = "badge";
+        if (recognition) {
+            recognition.stop();
+        }
+        addNotification("Voice assistant deactivated.");
+    }
+}
+
+if (enableVoiceButton) {
+    enableVoiceButton.addEventListener("click", toggleVoice);
+}
+
+function addVoiceMessage(sender, text) {
+    const voiceOutput = document.getElementById("voice-output");
+    if (voiceOutput) {
+        // Remove placeholder if present
+        const placeholder = voiceOutput.querySelector(".sys-msg");
+        if (placeholder && placeholder.textContent.includes("Waiting")) {
+            placeholder.remove();
+        }
+        
+        const p = document.createElement("p");
+        p.innerHTML = `<strong>${sender}:</strong> ${text}`;
+        voiceOutput.appendChild(p);
+        voiceOutput.scrollTop = voiceOutput.scrollHeight;
+    }
+}
+
+// Text to Speech (Speech Synthesis)
+function speakText(text) {
+    if (!window.speechSynthesis) return;
+    
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    utterance.pitch = 1.0;
+    utterance.rate = 1.0;
+    
+    // Temporarily pause recognition while speaking to avoid hearing itself
+    if (recognition && isVoiceEnabled) {
+        recognition.stop();
+        utterance.onend = () => {
+            if (isVoiceEnabled) {
+                try {
+                    recognition.start();
+                } catch (e) {}
+            }
+        };
+    }
+    
+    window.speechSynthesis.speak(utterance);
+}
+

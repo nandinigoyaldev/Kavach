@@ -1,2 +1,5 @@
 fastapi
-pydantic
+uvicorn
+websockets
+google-generativeai
+python-dotenv

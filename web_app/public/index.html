@@ -22,6 +22,7 @@
             <div class="status-bar">
                 <span id="api-status" class="badge">SYS: OFFLINE</span>
                 <span id="camera-status" class="badge">CAM: OFFLINE</span>
+                <span id="voice-status" class="badge">VOICE: OFFLINE</span>
             </div>
         </header>
 
@@ -33,11 +34,14 @@
                     <video id="webcam" autoplay playsinline></video>
                     <canvas id="output_canvas"></canvas>
                 </div>
-                <div class="controls">
+                <div class="controls" style="display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap;">
                     <button id="enableWebcamButton" class="btn primary">
                         Enable Camera
                     </button>
-                    <p class="hint">Show 5 fingers to activate holographic interface.</p>
+                    <button id="enableVoiceButton" class="btn primary">
+                        Enable Voice Bot
+                    </button>
+                    <p class="hint" style="width: 100%; text-align: center;">Show 5 fingers to activate holographic interface. Speak to interact.</p>
                 </div>
             </section>
 
@@ -56,6 +60,13 @@
                         <li>Tracking Status: <span id="tracking-status">INACTIVE</span></li>
                         <li>Handedness: <span id="handedness-out">-</span></li>
                     </ul>
+                </div>
+
+                <div class="voice-panel card">
+                    <h2>Voice Assistant</h2>
+                    <div id="voice-output" class="notes-box">
+                        <p class="sys-msg" style="color: var(--text-secondary);">Waiting for voice...</p>
+                    </div>
                 </div>
 
                 <div class="notifications-panel card">

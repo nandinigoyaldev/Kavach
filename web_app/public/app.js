@@ -124,9 +124,9 @@ async function predictWebcam() {
             
             // Finger counting heuristics
             const primaryFingerCount = detectFingerCount(results.landmarks[0]);
-            let gestureLabel = (primaryFingerCount === 5) ? "5 Fingers (autobotx uchless kisosk Mode)" : "Resting";
+            let gestureLabel = (primaryFingerCount === 5) ? "5 Fingers (autobotx Mode)" : "Resting";
 
-            // Draw autobotx uchless kisosk circle for ANY hand showing 5 fingers
+            // Draw autobotx circle for ANY hand showing 5 fingers
             results.landmarks.forEach((landmarks, index) => {
                 if (detectFingerCount(landmarks) === 5) {
                     const handName = results.handednesses[index][0].displayName;

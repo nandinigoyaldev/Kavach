@@ -41,3 +41,4 @@ screenshots/
 .idea/
 *.swp
 *.swo
+*.c

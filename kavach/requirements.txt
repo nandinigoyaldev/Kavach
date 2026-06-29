@@ -3,6 +3,5 @@ uvicorn[standard]
 python-dotenv
 google-generativeai
 twilio
-pyserial
 python-multipart
-Pillow
+pillow

@@ -1,0 +1,208 @@
+/* KAVACH Design System */
+:root {
+  --bg: #050508;
+  --card: #0d0d14;
+  --border: #1a1a2e;
+  --red: #ff0040;
+  --green: #00ff88;
+  --amber: #ffaa00;
+  --blue: #0066ff;
+  --purple: #7c3aed;
+  --text: #ffffff;
+  --text-dim: #6b6b8a;
+  --font: 'Space Grotesk', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  font-family: var(--font);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255,255,255,0.015) 2px,
+    rgba(255,255,255,0.015) 4px
+  );
+  z-index: 9999;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 60px;
+  padding: 0 16px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+}
+.top-bar .left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.top-bar .center {
+  font-weight: 600;
+}
+.top-bar .right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.dot.green { background: var(--green); }
+.dot.amber { background: var(--amber); }
+.dot.red { background: var(--red); }
+.clock { font-family: monospace; }
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 35% 30% 35%;
+  gap: 16px;
+  padding: 16px;
+  height: calc(100vh - 60px - 32px);
+  overflow-y: auto;
+}
+@media (max-width: 768px) {
+  .grid-container { grid-template-columns: 1fr; height: auto; }
+}
+
+.panel .card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Meter cards */
+.meter-card {
+  text-align: center;
+}
+.progress-ring {
+  transform: rotate(-90deg);
+}
+.progress-ring .bg {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 6;
+}
+.progress-ring .progress {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.layer-counter {
+  font-size: 32px;
+  text-align: center;
+  margin-top: 12px;
+}
+.layer-counter.pulse {
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.live-data {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.status-box {
+  border: 2px solid var(--green);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+.status-box.elevated { border-color: var(--amber); }
+.status-box.auto { border-color: var(--red); animation: pulse-red 1s infinite; }
+.status-box.immediate { background: var(--red); color: var(--text); }
+@keyframes pulse-red {
+  0%,100% { box-shadow: 0 0 30px rgba(255,0,64,0.25); }
+  50% { box-shadow: 0 0 50px rgba(255,0,64,0.5); }
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+.btn.primary { background: var(--blue); color: var(--text); }
+.btn.danger { background: var(--red); color: var(--text); }
+.btn.dark { background: #222; color: var(--text); }
+.btn.ghost { background: transparent; border: 2px solid var(--text-dim); color: var(--text); }
+.btn.accept { background: var(--green); }
+.btn.decline { background: var(--red); }
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+.overlay.hidden { display: none; }
+.countdown-box, .success-box, .call-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+}
+.call-box .caller-avatar {
+  width: 80px; height: 80px; border-radius: 50%; background: var(--purple);
+  display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 12px;
+}
+.call-box .call-buttons { display: flex; gap: 24px; justify-content: center; margin-top: 12px; }
+
+/* Shield Card overlay */
+.shield-card .shield-header { position: relative; }
+.shield-card .overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  color: var(--text);
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8px;
+}
+.shield-card .overlay .top-left { font-weight: 600; }
+.shield-card .overlay .bottom-left { font-style: italic; }

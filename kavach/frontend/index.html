@@ -4,118 +4,195 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>KAVACH – Safety Guardian</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="manifest.json" />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+  <link rel="manifest" href="/static/manifest.json" />
 </head>
 <body>
+  <!-- Top Bar Navbar -->
   <div class="top-bar">
     <div class="left">
-      <svg class="shield-icon" viewBox="0 0 64 64" fill="var(--red)"><path d="M32 2L12 12v18c0 12 8 22 20 26 12-4 20-14 20-26V12L32 2z"/></svg>
+      <svg class="shield-icon" viewBox="0 0 64 64"><path d="M32 2L12 12v18c0 12 8 22 20 26 12-4 20-14 20-26V12L32 2z"/></svg>
       <span class="app-title">KAVACH</span>
     </div>
-    <div class="center" id="status-badge">KAVACH ACTIVE — All Clear</div>
+    <div class="center" id="status-badge">
+      <span class="status-badge-dot safe"></span>
+      KAVACH ACTIVE — All Clear
+    </div>
     <div class="right">
-      <span id="bt-status" class="dot green" title="Wristband"></span>
-      <span id="mic-status" class="dot green" title="Voice"></span>
-      <span id="gps-status" class="dot green" title="Location"></span>
-      <span id="clock" class="clock"></span>
+      <button id="btn-connect-wristband" class="btn primary" style="padding: 6px 14px; font-size: 0.8rem; border-radius: 20px;">Connect Wristband</button>
+      <div class="device-status">
+        <span id="bt-status" class="dot red" title="Wristband Offline"></span>
+        <span id="mic-status" class="dot red" title="Voice Monitor Offline"></span>
+        <span id="gps-status" class="dot red" title="Location Offline"></span>
+      </div>
+      <span id="clock" class="clock">--:--:--</span>
     </div>
   </div>
 
+  <!-- Layout Container -->
   <div class="grid-container">
-    <!-- Left Panel -->
+    
+    <!-- Left Panel: KAVACH Shield Mode (Camera & Vision AI) -->
     <section class="panel left-panel">
-      <div class="card shield-card">
-        <div class="shield-header">
+      <div class="card state-safe">
+        <div style="margin-bottom: 8px;">
+          <h2 class="console-title" style="margin-bottom: 2px;">KAVACH Shield</h2>
+          <p style="font-size: 0.8rem; color: var(--text-dim);">Real-time environment & posture analysis</p>
+        </div>
+        <div class="camera-container">
           <canvas id="camera-canvas" width="320" height="240"></canvas>
-          <div class="overlay">
-            <div class="top-left">KAVACH VISION</div>
-            <div class="bottom-left" id="ai-description"></div>
+          <div class="scanner-line"></div>
+          <div class="camera-overlay">
+            <div class="camera-header-tag">KAVACH VISION</div>
+            <div class="camera-desc-tag" id="ai-description">Shield inactive – Camera off</div>
           </div>
+          <div class="camera-overlay-extra"></div>
         </div>
         <div class="shield-footer">
-          <div id="posture-level">Posture: —</div>
-          <button id="shield-toggle" class="btn">Enable Shield Mode</button>
+          <div class="posture-status-box">
+            <span>Posture Analysis:</span>
+            <span id="posture-level">Posture: —</span>
+          </div>
+          <button id="shield-toggle" class="btn primary">Enable Shield Mode</button>
         </div>
       </div>
     </section>
 
-    <!-- Center Panel -->
+    <!-- Center Panel: Distress Meters -->
     <section class="panel center-panel">
-      <div class="meter-card" id="gsr-meter">
-        <h3>SKIN RESPONSE</h3>
-        <svg class="progress-ring" width="100" height="100"><circle class="bg" r="40" cx="50" cy="50"/><circle class="progress" r="40" cx="50" cy="50"/></svg>
-        <div class="level-text" id="gsr-level-text">NORMAL</div>
-      </div>
-      <div class="meter-card" id="motion-meter">
-        <h3>GAIT PATTERN</h3>
-        <svg class="progress-ring" width="100" height="100"><circle class="bg" r="40" cx="50" cy="50"/><circle class="progress" r="40" cx="50" cy="50"/></svg>
-        <div class="level-text" id="motion-level-text">NORMAL</div>
-      </div>
-      <div class="meter-card" id="voice-meter">
-        <h3>VOICE STRESS</h3>
-        <svg class="progress-ring" width="100" height="100"><circle class="bg" r="40" cx="50" cy="50"/><circle class="progress" r="40" cx="50" cy="50"/></svg>
-        <div class="level-text" id="voice-level-text">NORMAL</div>
-      </div>
-      <div class="layer-counter" id="layer-counter">0 / 3 LAYERS ACTIVE</div>
-      <div class="live-data" id="live-data">
-        GSR: — (baseline: —) | Gait var: — | Voice pitch: — Hz
+      <div class="card state-safe">
+        <div>
+          <h2 class="console-title" style="margin-bottom: 2px;">Monitoring Console</h2>
+          <p style="font-size: 0.8rem; color: var(--text-dim);">Live multisensory distress assessment</p>
+        </div>
+        
+        <div class="meters-grid">
+          <!-- Skin Response (GSR) -->
+          <div class="meter-card" id="gsr-meter">
+            <h3>SKIN RESPONSE</h3>
+            <div class="progress-ring-container">
+              <svg class="progress-ring" viewBox="0 0 100 100">
+                <circle class="bg" cx="50" cy="50" r="40" />
+                <circle class="progress" cx="50" cy="50" r="40" stroke="var(--green)" stroke-dasharray="251.2" stroke-dashoffset="251.2" />
+              </svg>
+              <div class="progress-ring-text" id="gsr-val-text">—</div>
+            </div>
+            <span class="level-text normal" id="gsr-level-text">NORMAL</span>
+          </div>
+
+          <!-- Gait Pattern (MPU6050) -->
+          <div class="meter-card" id="motion-meter">
+            <h3>GAIT PATTERN</h3>
+            <div class="progress-ring-container">
+              <svg class="progress-ring" viewBox="0 0 100 100">
+                <circle class="bg" cx="50" cy="50" r="40" />
+                <circle class="progress" cx="50" cy="50" r="40" stroke="var(--green)" stroke-dasharray="251.2" stroke-dashoffset="251.2" />
+              </svg>
+              <div class="progress-ring-text" id="motion-val-text">—</div>
+            </div>
+            <span class="level-text normal" id="motion-level-text">NORMAL</span>
+          </div>
+
+          <!-- Voice Stress -->
+          <div class="meter-card" id="voice-meter">
+            <h3>VOICE STRESS</h3>
+            <div class="progress-ring-container">
+              <svg class="progress-ring" viewBox="0 0 100 100">
+                <circle class="bg" cx="50" cy="50" r="40" />
+                <circle class="progress" cx="50" cy="50" r="40" stroke="var(--green)" stroke-dasharray="251.2" stroke-dashoffset="251.2" />
+              </svg>
+              <div class="progress-ring-text" id="voice-val-text">—</div>
+            </div>
+            <span class="level-text normal" id="voice-level-text">NORMAL</span>
+          </div>
+        </div>
+
+        <div class="threat-gauge-container">
+          <div class="layer-counter safe" id="layer-counter">0 / 3 LAYERS ACTIVE</div>
+        </div>
+
+        <div class="live-data" id="live-data">
+          GSR: — (baseline: —) | Gait var: — | Voice: — Hz
+        </div>
       </div>
     </section>
 
-    <!-- Right Panel -->
+    <!-- Right Panel: Controls & Trusted Contacts -->
     <section class="panel right-panel">
-      <div class="status-box" id="status-box">
-        <h2 id="status-title">ALL CLEAR</h2>
-        <p id="status-message">Monitoring active. Stay safe.</p>
-      </div>
-      <div class="actions">
-        <button id="manual-sos" class="btn danger">🚨 MANUAL SOS</button>
-        <button id="fake-call" class="btn dark">📞 FAKE CALL</button>
-        <button id="reset" class="btn ghost">🔄 RESET</button>
-      </div>
-      <div class="contacts-section">
-        <h3>Trusted Contacts</h3>
-        <ul id="contact-list" class="contact-list"></ul>
-        <form id="add-contact-form" class="add-contact-form">
-          <input type="text" id="contact-name" placeholder="Name" required />
-          <input type="text" id="contact-phone" placeholder="+91XXXXXXXXXX" required />
-          <button type="submit" class="btn primary">+ Add</button>
-        </form>
+      <div class="card state-safe">
+        <!-- Status Box banner -->
+        <div class="status-box safe" id="status-box">
+          <h2 id="status-title">ALL CLEAR</h2>
+          <p id="status-message">Monitoring active. Stay safe.</p>
+        </div>
+
+        <!-- Call Actions -->
+        <div class="actions">
+          <button id="manual-sos" class="btn danger">🚨 MANUAL SOS</button>
+          <button id="fake-call" class="btn dark">📞 FAKE CALL</button>
+          <button id="reset" class="btn ghost">🔄 RESET SYSTEM</button>
+        </div>
+
+        <!-- Emergency Contacts Config -->
+        <div class="contacts-section">
+          <h3>Emergency Contacts</h3>
+          <ul id="contact-list" class="contact-list">
+            <!-- Dynamically populated -->
+          </ul>
+          <form id="add-contact-form" class="add-contact-form">
+            <input type="text" id="contact-name" placeholder="Name" required />
+            <input type="text" id="contact-phone" placeholder="+91..." required />
+            <button type="submit" class="btn primary">+ Add</button>
+          </form>
+        </div>
       </div>
     </section>
   </div>
 
-  <!-- Overlays -->
+  <!-- Fullscreen Countdown Overlay -->
   <div id="sos-countdown" class="overlay hidden">
     <div class="countdown-box">
-      <h2>⚠ SOS TRIGGERING IN <span id="countdown-number">10</span> SECONDS</h2>
+      <h2>AUTO-TRIGGER IMMINENT</h2>
+      <div class="countdown-number-display" id="countdown-number">10</div>
       <p id="countdown-reason"></p>
-      <button id="cancel-countdown" class="btn ghost">CANCEL</button>
+      <button id="cancel-countdown" class="btn primary" style="width: 100%; margin-top: 16px;">CANCEL SOS</button>
     </div>
   </div>
 
+  <!-- Fullscreen Success Overlay -->
   <div id="sos-success" class="overlay hidden">
     <div class="success-box">
-      <h2>✓ ALERT SENT</h2>
+      <svg style="width: 60px; height: 60px; fill: var(--green); margin-bottom: 16px;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+      <h2>SOS ALERT SENT</h2>
       <p id="success-msg"></p>
     </div>
   </div>
 
-  <div id="fake-call" class="overlay hidden">
+  <!-- Fullscreen iPhone Incoming Call Screen -->
+  <div id="fake-call-overlay" class="overlay hidden">
     <div class="call-box">
-      <div class="caller-avatar">P</div>
-      <div class="caller-info">Papa 📞<br><small>Incoming call...</small></div>
-      <div class="call-buttons">
-        <button class="btn accept"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="white" d="M9 16.17l-3.88-3.88L4 13.41l5 5 12-12-1.41-1.42z"/></svg></button>
-        <button class="btn decline"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="white" d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="2"/></svg></button>
+      <div class="caller-info">
+        <div class="call-avatar-circle">P</div>
+        <h1 class="caller-name">Papa</h1>
+        <p class="call-subtitle">Incoming call...</p>
+      </div>
+      <div class="call-buttons-panel">
+        <div class="call-action-btn" id="decline-call">
+          <div class="call-btn-circle decline">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a1 1 0 0 1 1-.27 11.28 11.28 0 0 0 3.51.56 1 1 0 0 1 1 1v3.5a1 1 0 0 1-1 1A16 16 0 0 1 3 6a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.28 11.28 0 0 0 .56 3.51 1 1 0 0 1-.27 1z"/></svg>
+          </div>
+          <span style="margin-top: 8px;">Decline</span>
+        </div>
+        <div class="call-action-btn" id="accept-call">
+          <div class="call-btn-circle accept">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <span style="margin-top: 8px;">Accept</span>
+        </div>
       </div>
     </div>
   </div>
 
-  <script src="bluetooth.js"></script>
-  <script src="voice.js"></script>
-  <script src="app.js"></script>
+  <script type="module" src="/static/app.js"></script>
 </body>
 </html>

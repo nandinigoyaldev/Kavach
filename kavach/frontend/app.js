@@ -173,8 +173,12 @@ window.addEventListener('DOMContentLoaded', async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240 }, audio: false });
         videoElement = document.createElement('video');
+        videoElement.setAttribute('autoplay', '');
+        videoElement.setAttribute('playsinline', '');
+        videoElement.playsInline = true;
+        videoElement.autoplay = true;
         videoElement.srcObject = stream;
-        videoElement.play();
+        videoElement.play().catch(err => console.error("Video play failed:", err));
         state.camera_active = true;
         elShieldToggle.textContent = 'Disable Shield Mode';
         elShieldToggle.className = 'btn dark';
@@ -189,13 +193,13 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Draw camera frame to Canvas every 100ms
   const ctx = elCameraCanvas.getContext('2d');
   setInterval(() => {
-    if (state.camera_active && videoElement && videoElement.readyState === videoElement.HAVE_CURRENT_DATA) {
+    if (state.camera_active && videoElement && videoElement.readyState >= 2) {
       ctx.drawImage(videoElement, 0, 0, elCameraCanvas.width, elCameraCanvas.height);
     } else {
       // Draw background graphic or dark screen when offline
       ctx.fillStyle = '#0a0a14';
       ctx.fillRect(0, 0, elCameraCanvas.width, elCameraCanvas.height);
-      ctx.fillStyle = '#ff004c';
+      ctx.fillStyle = '#ff3366';
       ctx.font = '12px Space Grotesk';
       ctx.fillText("SHIELD CAM OFFLINE", 20, 30);
     }

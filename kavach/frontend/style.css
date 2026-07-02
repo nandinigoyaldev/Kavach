@@ -1,24 +1,24 @@
 /* KAVACH Premium Design System */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg-gradient: radial-gradient(circle at 50% 50%, #0c0a1a 0%, #05040a 100%);
-  --bg: #050508;
-  --card: rgba(15, 15, 27, 0.65);
-  --card-hover: rgba(22, 22, 40, 0.8);
-  --border: rgba(255, 255, 255, 0.07);
-  --border-focus: rgba(124, 58, 237, 0.5);
-  --red: #ff004c;
-  --red-glow: rgba(255, 0, 76, 0.35);
-  --green: #00ff9d;
-  --green-glow: rgba(0, 255, 157, 0.2);
-  --amber: #ffb700;
-  --amber-glow: rgba(255, 183, 0, 0.25);
-  --blue: #0088ff;
-  --purple: #8b5cf6;
-  --text: #f3f4f6;
+  --bg-gradient: linear-gradient(135deg, #090710 0%, #110920 50%, #1e0921 100%);
+  --bg: #09070f;
+  --card: rgba(22, 16, 40, 0.45);
+  --card-hover: rgba(30, 22, 54, 0.6);
+  --border: rgba(255, 255, 255, 0.06);
+  --border-focus: rgba(244, 63, 94, 0.45);
+  --red: #ff3366; /* Elegant rose-pink for alerts */
+  --red-glow: rgba(255, 51, 102, 0.25);
+  --green: #10b981; /* Mint/Emerald for safe state */
+  --green-glow: rgba(16, 185, 129, 0.15);
+  --amber: #f59e0b; /* Sunset orange */
+  --amber-glow: rgba(245, 158, 11, 0.15);
+  --blue: #3b82f6;
+  --purple: #ec4899; /* Hot pink/magenta for active/accent */
+  --text: #f9fafb;
   --text-dim: #9ca3af;
-  --font: 'Space Grotesk', sans-serif;
+  --font: 'Outfit', 'Space Grotesk', sans-serif;
   --glow-radius: 20px;
 }
 
@@ -40,20 +40,33 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Cybernetic Scanline Overlay */
+/* Elegant ambient glowing blobs */
+body::before {
+  content: '';
+  position: fixed;
+  top: -150px;
+  right: -150px;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(244, 63, 94, 0.12) 0%, rgba(244, 63, 94, 0) 70%);
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: -1;
+}
+
 body::after {
   content: '';
   position: fixed;
-  inset: 0;
+  bottom: -150px;
+  left: -150px;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, rgba(139, 92, 246, 0) 70%);
+  filter: blur(100px);
   pointer-events: none;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(255, 255, 255, 0.007) 2px,
-    rgba(255, 255, 255, 0.007) 4px
-  );
-  z-index: 9999;
+  z-index: -1;
 }
 
 /* Custom Scrollbar */
@@ -64,11 +77,11 @@ body::after {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.18);
 }
 
 /* Header & Navigation */
@@ -78,10 +91,11 @@ body::after {
   align-items: center;
   height: 70px;
   padding: 0 24px;
-  background: rgba(10, 10, 18, 0.8);
-  backdrop-filter: blur(16px);
+  background: rgba(12, 9, 23, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
 }
 
 .top-bar .left {
@@ -93,7 +107,7 @@ body::after {
 .shield-icon {
   width: 28px;
   height: 28px;
-  filter: drop-shadow(0 0 8px var(--red));
+  filter: drop-shadow(0 0 8px var(--purple));
   animation: float 3s ease-in-out infinite;
 }
 
@@ -103,16 +117,16 @@ body::after {
 }
 
 .app-title {
-  font-size: 1.4rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  background: linear-gradient(to right, #ffffff, #a78bfa);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  background: linear-gradient(to right, #ffffff, #f472b6, #c084fc);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .top-bar .center {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border);
   padding: 6px 18px;
   border-radius: 30px;
@@ -146,7 +160,7 @@ body::after {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.01);
   padding: 6px 14px;
   border-radius: 20px;
   border: 1px solid var(--border);
@@ -198,35 +212,35 @@ body::after {
 /* Universal Card design */
 .card {
   background: var(--card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 24px;
   padding: 24px;
   display: flex;
   flex-direction: column;
   position: relative;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
 }
 
 /* Interactive Card glows depending on threat state */
 .card.state-safe {
-  box-shadow: 0 0 30px rgba(0, 255, 157, 0.04), inset 0 0 12px rgba(0, 255, 157, 0.02);
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.01), inset 0 0 12px rgba(255, 255, 255, 0.01);
 }
 .card.state-elevated {
-  box-shadow: 0 0 30px rgba(255, 183, 0, 0.08), inset 0 0 12px rgba(255, 183, 0, 0.03);
-  border-color: rgba(255, 183, 0, 0.3);
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.05), inset 0 0 12px rgba(245, 158, 11, 0.01);
+  border-color: rgba(245, 158, 11, 0.22);
 }
 .card.state-distress {
-  box-shadow: 0 0 40px rgba(255, 0, 76, 0.18), inset 0 0 16px rgba(255, 0, 76, 0.05);
-  border-color: rgba(255, 0, 76, 0.4);
+  box-shadow: 0 0 40px rgba(255, 51, 102, 0.12), inset 0 0 16px rgba(255, 51, 102, 0.02);
+  border-color: rgba(255, 51, 102, 0.3);
   animation: pulse-border 1.5s infinite;
 }
 
 @keyframes pulse-border {
-  0%, 100% { border-color: rgba(255, 0, 76, 0.4); }
-  50% { border-color: rgba(255, 0, 76, 0.8); }
+  0%, 100% { border-color: rgba(255, 51, 102, 0.3); }
+  50% { border-color: rgba(255, 51, 102, 0.6); }
 }
 
 /* Left Panel - Camera */
@@ -342,8 +356,8 @@ body::after {
   position: absolute;
   width: 100%;
   height: 2px;
-  background: linear-gradient(to right, transparent, var(--red), transparent);
-  box-shadow: 0 0 8px var(--red);
+  background: linear-gradient(to right, transparent, var(--purple), var(--red), var(--purple), transparent);
+  box-shadow: 0 0 10px var(--red-glow);
   top: 0;
   animation: scan 3s linear infinite;
   opacity: 0.7;
@@ -559,17 +573,17 @@ body::after {
 }
 
 .btn.primary {
-  background: linear-gradient(135deg, var(--purple) 0%, #6d28d9 100%);
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
   color: #fff;
-  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.25);
 }
 
 .btn.danger {
-  background: linear-gradient(135deg, var(--red) 0%, #d60036 100%);
+  background: linear-gradient(135deg, #ff3366 0%, #f43f5e 100%);
   color: #fff;
   font-size: 1.05rem;
   font-weight: 700;
-  box-shadow: 0 4px 20px var(--red-glow);
+  box-shadow: 0 4px 20px rgba(255, 51, 102, 0.25);
   letter-spacing: 1.5px;
 }
 

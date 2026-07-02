@@ -109,8 +109,8 @@ body::before {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 64px;
-  padding: 0 24px;
+  height: 52px;
+  padding: 0 20px;
   background: rgba(15, 10, 20, 0.8);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -310,25 +310,25 @@ body::before {
 .grid-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 16px;
-  height: calc(100vh - 64px);
+  gap: 12px;
+  padding: 12px;
+  height: calc(100vh - 52px);
   box-sizing: border-box;
 }
 
 .upper-row, .lower-row {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
-  gap: 16px;
+  gap: 12px;
   min-height: 0; /* Prevents rows from growing uncontrollably */
 }
 
 .upper-row {
-  height: 52%;
+  height: 53%;
 }
 
 .lower-row {
-  height: 45%;
+  height: 44%;
 }
 
 /* Glassmorphism Card Style */
@@ -337,8 +337,8 @@ body::before {
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 20px;
+  border-radius: 20px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -395,8 +395,8 @@ body::before {
   right: 0;
   height: 2px;
   background: linear-gradient(to right, var(--pink), var(--purple));
-  border-top-left-radius: 24px;
-  border-top-right-radius: 24px;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
 }
 
 .card-header {
@@ -464,8 +464,9 @@ body::before {
   grid-area: camera;
   position: relative;
   width: 100%;
-  height: 100%;
-  min-height: 180px;
+  max-width: 280px;
+  height: 210px;
+  margin: 0 auto;
   border-radius: 16px;
   overflow: hidden;
   background: rgba(0, 0, 0, 0.2);
@@ -564,21 +565,32 @@ body::before {
   animation: blinking 1.2s infinite ease-in-out;
 }
 
-/* Bottom description tag inside camera */
-.camera-desc-tag-wrapper {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(to top, rgba(10, 5, 20, 0.8) 0%, transparent 100%);
-  padding: 16px 12px 10px;
+/* AI Vision Feedback Box inside footer info */
+.ai-feedback-container {
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin-top: 4px;
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.ai-feedback-label {
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--pink-soft);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
 }
 
 .camera-desc-tag {
   font-size: 11px;
-  color: var(--pink-soft);
-  line-height: 1.4;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  color: var(--text-dim);
+  line-height: 1.35;
 }
 
 .shield-card-wrapper .shield-footer {
@@ -849,8 +861,8 @@ body::before {
 
 .progress-ring-container {
   position: relative;
-  width: 54px;
-  height: 54px;
+  width: 48px;
+  height: 48px;
   flex-shrink: 0;
 }
 
@@ -862,7 +874,7 @@ body::before {
 
 .progress-ring circle {
   fill: none;
-  stroke-width: 8; /* Visual stroke remains thin on 54px circle */
+  stroke-width: 9; /* Visual stroke remains thin on 48px circle */
 }
 
 .progress-ring .bg {
@@ -1026,7 +1038,7 @@ body::before {
 
 .contact-list {
   list-style: none;
-  max-height: 130px;
+  max-height: 90px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;

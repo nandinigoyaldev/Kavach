@@ -1509,19 +1509,38 @@ body::before {
 
 @media (max-width: 768px) {
   .top-bar {
-    padding: 0 16px;
+    padding: 0 12px;
   }
   .app-title {
-    font-size: 18px;
+    font-size: 16px;
   }
   .app-subtitle-hi {
-    font-size: 8px;
+    font-size: 7px;
   }
   .top-bar .center {
     display: none; /* Hide center badge on tiny screens */
   }
   .clock {
     display: none; /* Hide clock on mobile */
+  }
+  
+  #btn-connect-wristband {
+    padding: 4px 8px;
+    font-size: 9px;
+    letter-spacing: 0.5px;
+  }
+  .device-status {
+    gap: 4px;
+  }
+  .status-pill {
+    padding: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    justify-content: center;
+  }
+  .status-pill .status-label {
+    display: none;
   }
   
   .grid-container {

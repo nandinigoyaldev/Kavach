@@ -74,9 +74,10 @@
   <!-- Bento Grid Layout Container -->
   <div class="grid-container">
     
-    <!-- Left Column: KAVACH Shield (Camera) -->
-    <section class="panel left-panel">
-      <div class="card state-safe shield-card-wrapper">
+    <!-- Upper Row: Camera Feed & Quick Status Controls -->
+    <div class="upper-row">
+      <!-- Upper Left: KAVACH Shield (Camera) -->
+      <section class="card state-safe shield-card-wrapper">
         <div class="card-gradient-top"></div>
         <div class="card-header">
           <div class="card-header-label">
@@ -124,101 +125,15 @@
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Center Column: Stacked Meters & Threat Counter -->
-    <section class="panel center-panel">
-      <!-- Skin Response (GSR) -->
-      <div class="card state-safe meter-card-wrapper" id="gsr-meter">
-        <div class="meter-card">
-          <div class="meter-left">
-            <div class="progress-ring-container">
-              <svg class="progress-ring" viewBox="0 0 100 100">
-                <circle class="bg" cx="50" cy="50" r="40" />
-                <circle class="progress" cx="50" cy="50" r="40" stroke="var(--green)" stroke-dasharray="251.2" stroke-dashoffset="251.2" />
-              </svg>
-              <div class="progress-ring-text" id="gsr-val-text">—</div>
-            </div>
-          </div>
-          <div class="meter-right">
-            <div class="meter-meta">
-              <svg class="meter-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2A10 10 0 0 0 2 12a9.89 9.89 0 0 0 2.45 6.61l1.42-1.42A8 8 0 1 1 12 20v2a10 10 0 0 0 10-10A10 10 0 0 0 12 2m0 4a6 6 0 1 0 0 12v-2a4 4 0 1 1 0-8zm0 4a2 2 0 1 0 0 4z"/></svg>
-              <span>SKIN RESPONSE</span>
-            </div>
-            <div class="level-status-group">
-              <span class="level-text normal" id="gsr-level-text">NORMAL</span>
-            </div>
-          </div>
+      <!-- Upper Right: System Controls & Alert Status -->
+      <section class="card state-safe controls-card-wrapper">
+        <div class="controls-card-header">
+          <h2 class="console-title">System Status</h2>
+          <p class="card-header-desc">Core commands & monitoring triggers</p>
         </div>
-      </div>
-
-      <!-- Gait Pattern (MPU6050) -->
-      <div class="card state-safe meter-card-wrapper" id="motion-meter">
-        <div class="meter-card">
-          <div class="meter-left">
-            <div class="progress-ring-container">
-              <svg class="progress-ring" viewBox="0 0 100 100">
-                <circle class="bg" cx="50" cy="50" r="40" />
-                <circle class="progress" cx="50" cy="50" r="40" stroke="var(--green)" stroke-dasharray="251.2" stroke-dashoffset="251.2" />
-              </svg>
-              <div class="progress-ring-text" id="motion-val-text">—</div>
-            </div>
-          </div>
-          <div class="meter-right">
-            <div class="meter-meta">
-              <svg class="meter-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2s-2 .9-2 2s.9 2 2 2zM9.8 8.9L7 21.5h2.1l2.1-9.1L13 14v7.5h2V13l-1.9-2.7l.6-3c1.3 1.5 3.3 2.5 5.5 2.5v-2c-1.8 0-3.3-1-4.2-2.5L14 3.7c-.4-.6-1.1-1-1.8-1c-.4 0-.8.1-1.1.3L5.2 6.5v6h2V8.9l2.6-1.5z"/></svg>
-              <span>GAIT PATTERN</span>
-            </div>
-            <div class="level-status-group">
-              <span class="level-text normal" id="motion-level-text">NORMAL</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Voice Stress -->
-      <div class="card state-safe meter-card-wrapper" id="voice-meter">
-        <div class="meter-card">
-          <div class="meter-left">
-            <div class="progress-ring-container">
-              <svg class="progress-ring" viewBox="0 0 100 100">
-                <circle class="bg" cx="50" cy="50" r="40" />
-                <circle class="progress" cx="50" cy="50" r="40" stroke="var(--green)" stroke-dasharray="251.2" stroke-dashoffset="251.2" />
-              </svg>
-              <div class="progress-ring-text" id="voice-val-text">—</div>
-            </div>
-          </div>
-          <div class="meter-right">
-            <div class="meter-meta">
-              <svg class="meter-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3m7 9h-2a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.93V21h2v-2.07A7 7 0 0 0 19 12z"/></svg>
-              <span>VOICE STRESS</span>
-            </div>
-            <div class="level-status-group">
-              <span class="level-text normal" id="voice-level-text">NORMAL</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Threat Layers Counter & Monospace Log -->
-      <div class="card state-safe layer-counter-card">
-        <div class="threat-gauge-container">
-          <div class="layer-counter safe" id="layer-counter">0 / 3 LAYERS ACTIVE</div>
-          <div class="progress-bar-container">
-            <div class="progress-bar-fill"></div>
-          </div>
-          <span class="gauge-helper-text">layers detecting distress</span>
-        </div>
-        <div class="live-data" id="live-data">
-          GSR: — (baseline: —) | Gait var: — | Voice: — Hz
-        </div>
-      </div>
-    </section>
-
-    <!-- Right Column: System Controls & Trusted Contacts -->
-    <section class="panel right-panel">
-      <div class="card state-safe controls-card-wrapper">
+        
         <!-- Status Box Banner -->
         <div class="status-box safe" id="status-box">
           <h2 id="status-title">ALL CLEAR</h2>
@@ -231,8 +146,83 @@
           <button id="fake-call" class="btn dark">📞 Trigger Fake Call</button>
           <button id="reset" class="btn ghost">↺ Reset Alert</button>
         </div>
+      </section>
+    </div>
 
-        <!-- Trusted Contacts List Section -->
+    <!-- Lower Row: Sensors Dashboard & Safety Circle Contacts -->
+    <div class="lower-row">
+      <!-- Lower Left: Health Sensors Monitoring Widgets -->
+      <section class="card state-safe sensor-dashboard-wrapper">
+        <div class="sensors-card-header">
+          <h2 class="console-title">Multisensory Intelligence</h2>
+          <p class="card-header-desc">Live distress signals & threat vectors</p>
+        </div>
+        
+        <div class="sensors-row">
+          <!-- Skin Response (GSR) -->
+          <div class="meter-widget" id="gsr-meter">
+            <div class="progress-ring-container">
+              <svg class="progress-ring" viewBox="0 0 100 100">
+                <circle class="bg" cx="50" cy="50" r="40" />
+                <circle class="progress" cx="50" cy="50" r="40" stroke="var(--green)" stroke-dasharray="251.2" stroke-dashoffset="251.2" />
+              </svg>
+              <div class="progress-ring-text" id="gsr-val-text">—</div>
+            </div>
+            <div class="meter-meta">
+              <svg class="meter-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2A10 10 0 0 0 2 12a9.89 9.89 0 0 0 2.45 6.61l1.42-1.42A8 8 0 1 1 12 20v2a10 10 0 0 0 10-10A10 10 0 0 0 12 2m0 4a6 6 0 1 0 0 12v-2a4 4 0 1 1 0-8zm0 4a2 2 0 1 0 0 4z"/></svg>
+              <span>SKIN RESPONSE</span>
+            </div>
+            <span class="level-text normal" id="gsr-level-text">NORMAL</span>
+          </div>
+
+          <!-- Gait Pattern (MPU6050) -->
+          <div class="meter-widget" id="motion-meter">
+            <div class="progress-ring-container">
+              <svg class="progress-ring" viewBox="0 0 100 100">
+                <circle class="bg" cx="50" cy="50" r="40" />
+                <circle class="progress" cx="50" cy="50" r="40" stroke="var(--green)" stroke-dasharray="251.2" stroke-dashoffset="251.2" />
+              </svg>
+              <div class="progress-ring-text" id="motion-val-text">—</div>
+            </div>
+            <div class="meter-meta">
+              <svg class="meter-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2s-2 .9-2 2s.9 2 2 2zM9.8 8.9L7 21.5h2.1l2.1-9.1L13 14v7.5h2V13l-1.9-2.7l.6-3c1.3 1.5 3.3 2.5 5.5 2.5v-2c-1.8 0-3.3-1-4.2-2.5L14 3.7c-.4-.6-1.1-1-1.8-1c-.4 0-.8.1-1.1.3L5.2 6.5v6h2V8.9l2.6-1.5z"/></svg>
+              <span>GAIT PATTERN</span>
+            </div>
+            <span class="level-text normal" id="motion-level-text">NORMAL</span>
+          </div>
+
+          <!-- Voice Stress -->
+          <div class="meter-widget" id="voice-meter">
+            <div class="progress-ring-container">
+              <svg class="progress-ring" viewBox="0 0 100 100">
+                <circle class="bg" cx="50" cy="50" r="40" />
+                <circle class="progress" cx="50" cy="50" r="40" stroke="var(--green)" stroke-dasharray="251.2" stroke-dashoffset="251.2" />
+              </svg>
+              <div class="progress-ring-text" id="voice-val-text">—</div>
+            </div>
+            <div class="meter-meta">
+              <svg class="meter-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3m7 9h-2a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.93V21h2v-2.07A7 7 0 0 0 19 12z"/></svg>
+              <span>VOICE STRESS</span>
+            </div>
+            <span class="level-text normal" id="voice-level-text">NORMAL</span>
+          </div>
+        </div>
+
+        <div class="threat-gauge-container">
+          <div class="layer-counter safe" id="layer-counter">0 / 3 LAYERS ACTIVE</div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill"></div>
+          </div>
+          <span class="gauge-helper-text">layers detecting distress</span>
+        </div>
+        
+        <div class="live-data" id="live-data">
+          GSR: — (baseline: —) | Gait var: — | Voice: — Hz
+        </div>
+      </section>
+
+      <!-- Lower Right: Trusted Contacts Book -->
+      <section class="card state-safe contacts-card-wrapper">
         <div class="contacts-section">
           <div class="contacts-divider">
             <span>Trusted Contacts</span>
@@ -245,13 +235,13 @@
           <form id="add-contact-form" class="add-contact-form">
             <div class="inputs-row">
               <input type="text" id="contact-name" placeholder="Name" required />
-              <input type="text" id="contact-phone" placeholder="+91..." required />
+              <input type="text" id="contact-phone" placeholder="Phone +91..." required />
             </div>
             <button type="submit" class="btn primary">+ Add Contact</button>
           </form>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   </div>
 
   <!-- Fullscreen Countdown Overlay -->
